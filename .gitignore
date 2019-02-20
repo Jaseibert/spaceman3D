@@ -1,2 +1,4 @@
 .DS_Store
 status.txt
+extra.txt
+__pycache__

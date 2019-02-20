@@ -12,13 +12,14 @@ class Draw(object):
     ax = fig.add_subplot(111, projection='3d', aspect=1)
 
     max_radius = 0
+    Earth_radius = 6371
 
-    def plot_earth():
+    def plot_earth(self):
         "Draw Earth as a globe at the origin"
 
-        Earth_radius = 6371
-        global max_radius
-        max_radius = max(max_radius, Earth_radius)
+        #Earth_radius = 6371
+        #global max_radius
+        #max_radius = max(max_radius, Earth_radius)
 
         # Coefficients in a0/c x**2 + a1/c y**2 + a2/c z**2 = 1
         coefs = (1, 1, 1)
@@ -26,29 +27,21 @@ class Draw(object):
         # Radii corresponding to the coefficients:
         rx, ry, rz = [Earth_radius/np.sqrt(coef) for coef in coefs]
 
-        # Azimuth Angle in Spherical Coordinates
+        # Azimuth Angle & Altitude in Spherical Coordinates
         phi = np.linspace(0, 2*np.pi, 100)
-
-        # Altitude Angle in Spherical Coordinates
         theta = np.linspace(0, np.pi, 100)
 
-        # Cartesian coordinates that correspond to the spherical angles:
-        #X = r * cos(ϕ)sin(θ)
+        # Spherical Angles: X = r * cos(ϕ)sin(θ), Y = r * cos(ϕ)sin(θ), Z = r * cos(θ)
         x = rx * np.outer(np.cos(phi), np.sin(theta))
-
-        #Y = r * cos(ϕ)sin(θ)
         y = ry * np.outer(np.sin(phi), np.sin(theta))
-
-        #Z = r * cos(θ)
         z = rz * np.outer(np.ones_like(phi), np.cos(theta))
         #z = rz *  np.cos(theta)
 
-        # Plot the Earth:
         ax.plot_surface(x, y, z,  rstride=4, cstride=4, color='g')
 
 
 
-    def plot_orbit(semi_major_axis, eccentricity=0, inclination=0, right_ascension=0, argument_perigee=0, true_anomaly=0, label=None):
+    def plot_orbit(self,semi_major_axis, eccentricity=0, inclination=0, right_ascension=0, argument_perigee=0, true_anomaly=0, label=None):
         "Draws orbit around an earth in units of kilometers."
 
         # Rotation matrix for inclination
@@ -102,7 +95,7 @@ class Draw(object):
         c = np.sqrt(satx*satx + saty*saty)
         lat = np.arctan2(satz, c) * 180/np.pi
         lon = np.arctan2(saty, satx) * 180/np.pi
-        print "%s : Lat: %g° Long: %g" % (label, lat, lon)
+        print("{}s : Lat: {}g° Long: {}g").format(label, lat, lon)
 
         # Draw radius vector from earth
         # ax.plot([0, satx], [0, saty], [0, satz], 'r-')
@@ -116,7 +109,7 @@ class Draw(object):
         if label:
             ax.text(satx, saty, satz, label, fontsize=12)
 
-    def draw():
+    def draw(self):
         # Adjustment of the axes, so that they all have the same span:
         for axis in 'xyz':
             getattr(ax, 'set_{}lim'.format(axis))
