@@ -2,29 +2,29 @@ from __future__ import division
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
 import numpy as np
+import spaceman.Orbit.orbit as o
 
 class Draw(object):
 
-    def __init__():
+    def __init__(self):
         return
 
-    fig = plt.figure(figsize=plt.figaspect(1))
-    ax = fig.add_subplot(111, projection='3d', aspect=1)
-
-    max_radius = 0
-    Earth_radius = 6371
+    def plot_setup(self):
+        fig = plt.figure(figsize=plt.figaspect(1))
+        ax = fig.add_subplot(111, projection='3d', aspect=1)
+        max_radius = 0
+        Earth_radius = 6371
+        return fig, ax, max_radius, Earth_radius
 
     def plot_earth(self):
         "Draw Earth as a globe at the origin"
 
-        #Earth_radius = 6371
-        #global max_radius
-        #max_radius = max(max_radius, Earth_radius)
+        fig, ax, max_radius, Earth_radius = self.plot_setup()
+        max_radius = max(max_radius, Earth_radius)
 
         # Coefficients in a0/c x**2 + a1/c y**2 + a2/c z**2 = 1
         coefs = (1, 1, 1)
-
-        # Radii corresponding to the coefficients:
+        # Radii corresponding to he coefficients:
         rx, ry, rz = [Earth_radius/np.sqrt(coef) for coef in coefs]
 
         # Azimuth Angle & Altitude in Spherical Coordinates
@@ -39,8 +39,6 @@ class Draw(object):
 
         ax.plot_surface(x, y, z,  rstride=4, cstride=4, color='g')
 
-
-
     def plot_orbit(self,semi_major_axis, eccentricity=0, inclination=0, right_ascension=0, argument_perigee=0, true_anomaly=0, label=None):
         "Draws orbit around an earth in units of kilometers."
 
@@ -48,16 +46,16 @@ class Draw(object):
         inc = inclination * np.pi / 180
         R = np.matrix([[1, 0, 0],
                        [0, np.cos(inc), -np.sin(inc)],
-                       [0, np.sin(inc), np.cos(inc)]])
+                       [0, np.sin(inc), np.cos(inc)]    ])
 
         # Rotation matrix for argument of perigee + right ascension
         rot = (right_ascension + argument_perigee) * np.pi/180
         R2 = np.matrix([[np.cos(rot), -np.sin(rot), 0],
                         [np.sin(rot), np.cos(rot), 0],
-                        [0, 0, 1]])
+                        [0, 0, 1]   ])
 
         ### Draw orbit
-        theta = np.linspace(0,2*pi, 360)
+        theta = np.linspace(0,2*np.pi, 360)
         r = (semi_major_axis * (1-eccentricity**2)) / (1 + eccentricity*np.cos(theta))
 
         xr = r*np.cos(theta)
@@ -69,7 +67,6 @@ class Draw(object):
         # Rotate by inclination
         # Rotate by ascension + perigee
         pts =  (R * R2 * pts.T).T
-
 
         # Turn back into 1d vectors
         xr,yr,zr = pts[:,0].A.flatten(), pts[:,1].A.flatten(), pts[:,2].A.flatten()
@@ -87,7 +84,7 @@ class Draw(object):
         saty = satr * np.sin(sat_angle)
         satz = 0
 
-        sat = (R * R2 * np.matrix([satx, saty, satz]).T ).flatten()
+        sat = (R * R2 * np.matrix([satx, saty, satz]).T).flatten()
         satx = sat[0,0]
         saty = sat[0,1]
         satz = sat[0,2]
@@ -110,7 +107,17 @@ class Draw(object):
             ax.text(satx, saty, satz, label, fontsize=12)
 
     def draw(self):
+        orb = o.Orbit()
+        inclination = orb.inclination
+        eccentricity = orb.eccentricity
+        right_ascension = orb.right_ascension
+        argument_periapsis = orb.argument_periapsis
+        title = orb.title
+        semi_major_axis,true_anomaly = orb.infered_kelperian_elements()
+        self.plot_orbit(semi_major_axis,eccentricity,inclination,right_ascension,argument_periapsis,true_anomaly,title)
         # Adjustment of the axes, so that they all have the same span:
+        fig, ax, max_radius, Earth_radius = self.plot_setup()
+
         for axis in 'xyz':
             getattr(ax, 'set_{}lim'.format(axis))
             ((-max_radius, max_radius))

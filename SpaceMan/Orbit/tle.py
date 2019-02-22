@@ -1,4 +1,5 @@
 from datetime import datetime, timedelta
+import pytz as tz
 
 class tle(object):
 
@@ -11,14 +12,14 @@ class tle(object):
         return title, line1, line2
 
     def tle_checksum_algortithm(self,line):
-        '''This function defines the (mod 10) checksum algorithm used to determine validity on TLE sets.'''
-        line = line.replace('-','1').replace(' ','0').replace('+','0')
-        ind_val = lambda x: x >= '0' and x <= '9'
-        chksum = sum(int(ind_val(line)))
-        mod10_chksum = chksum % 10
+        '''This function defines the modulo 10 checksum algorithm used to determine validity on TLE sets.'''
+        line = line.replace('-','1')
+        ind_val = [int(d) for d in line if d.isdigit()]
+        del ind_val[-1]
+        mod10_chksum = sum(ind_val) % 10
         return mod10_chksum
 
-    def validation_framework(self,condition1, condition2, expected1, expected2,dual_condition=True):
+    def validation_framework(self,condition1, condition2, expected1=None, expected2=None,dual_condition=True):
         '''This function defines two conditional tests that will be used to check the TLE data'''
         if dual_condition is True:
             if str(condition1) == str(expected1) and str(condition2) == str(expected2):
@@ -26,14 +27,14 @@ class tle(object):
             else:
                 return False
         else:
-            if str(condition1) == str(conditition2):
+            if str(condition1) == str(condition2):
                 return True
             else:
                 return False
 
     def check_valid_tle(self,tle):
         '''This function validates the tle by checking that several tle elements are valid.'''
-        title, line1, line2 =  parse_tle(tle)
+        title, line1, line2 =  self.parse_tle(tle)
 
         line_index = self.validation_framework(line1[0],line2[0],'1','2')
         sat_num = self.validation_framework(line1[2:7],line2[2:7],dual_condition=False)
@@ -44,14 +45,18 @@ class tle(object):
             return False
 
     def scientific_notation_conversion(self,val):
-        '''This function takes the tle format of floats (01234-5) a + or -, and converts them into 0.01234e-5'''
-        split = val.str.split('-')
-        X_digits = split.str.get(0)
+        '''This function takes the tle format of floats (01234-5) a + or -, and converts them into 1234.000000..5'''
+        split = val.split('-')
+        X_digits = split[0]
         multiplier = 0.1**int(len(X_digits))
-        exp = split.str.get(1)
-        base = multiplier*float(value[int(len(int_base))])
-        exponent = 10**int(val[int(exponent):])
+        exp = split[1]
+        base = multiplier*int(X_digits)
+        exponent = 10**int(exp)
         return base * exponent
+
+    def decimal_conversion(self,val):
+        value = float(f'{val[0]}.{val[1:]}')
+        return value
 
     def tle_satellite_elements(self,tle, print_info=False):
         '''This function parses and returns the satellite's basic TLE elements as individual components.'''
@@ -78,16 +83,40 @@ class tle(object):
             print("----------------------------------------------------------------------------------------")
             print(tle)
             print("----------------------------------------------------------------------------------------")
-            print("Satellite Name                                            = {}s").format(title)
-            print("Satellite Number                                          = {}g ({}s)").format(satellite_number, "Unclassified" if classification == 'U' else "Classified")
-            print("International Designator                                  = YR: %02d, LAUNCH #%d, PIECE: %s").format(international_designator_year, international_designator_launch_number, international_designator_piece_of_launch)
-            print("Epoch Date                                                = {}s (YR:{} DAY:{})").format(epoch_date.strftime("%Y-%m-%d %H:%M:%S.%f %Z"), year, epoch)
-            print("Element number                                            = {}g").format(element_number)
+            print("Satellite Name                                              {}").format(title)
+            print("Satellite Number                                            {} ({})").format(satellite_number, "Unclassified" if classification == 'U' else "Classified")
+            print("International Designator                                    YR:{}, LAUNCH #:{}, PIECE: {}").format(international_designator_year, international_designator_launch_number, international_designator_piece_of_launch)
+            print("Epoch Date                                                  {} (YR:{} DAY:{})").format(epoch_date.strftime("%Y-%m-%d %H:%M:%S.%f %Z"), year, epoch)
+            print("Element number                                              {}").format(element_number)
             print("----------------------------------------------------------------------------------------")
         else:
             pass
         return title, satellite_number, classification, international_designator_year, international_designator_launch_number,
         international_designator_piece_of_launch, element_number, epoch_year, year, epoch, epoch_date
+
+    def tle_satellite_time_elements(self,tle, print_info=False):
+        '''This function parses and returns the satellite's basic TLE elements as individual components.'''
+        title, line1, line2 =  self.parse_tle(tle)
+        if self.check_valid_tle(tle) is True:
+            epoch_year = int(line1[18:20])
+            year = (
+                2000 + epoch_year
+                if epoch_year < 70
+                else 1900 + epoch_year)
+            epoch = float(line1[20:32])
+            epoch_date = datetime(year=year, month=1, day=1, tzinfo=tz.utc) + timedelta(days=epoch-1)
+        else:
+            assert self.check_valid_tle(tle) is True, "Your TLE data doesn't apppear to be correct, check the data and try again."
+
+        if print_info is True:
+            print("----------------------------------------------------------------------------------------")
+            print(tle)
+            print("----------------------------------------------------------------------------------------")
+            print("Epoch Date                                                  {} (YR:{} DAY:{})".format(epoch_date.strftime("%Y-%m-%d %H:%M:%S.%f %Z"), year, epoch))
+            print("----------------------------------------------------------------------------------------")
+        else:
+            pass
+        return epoch_date
 
     def tle_ballistic_elements(self,tle, print_info=False):
         '''This function parses and returns the ballistic TLE elements as individual components.'''
@@ -105,11 +134,11 @@ class tle(object):
             print("----------------------------------------------------------------------------------------")
             print(tle)
             print("----------------------------------------------------------------------------------------")
-            print("Mean Motion [Revs per day] Motion                         = {}g").format(mean_motion)
-            print("Revolution number at epoch [Revs]                         = {}g").format(revolution)
-            print("First Time Derivative of the Mean Motion divided by two   = {}g").format(first_time_derivative_of_the_mean_motion_divided_by_two)
-            print("Second Time Derivative of Mean Motion divided by six      = {}g").format(second_time_derivative_of_mean_motion_divided_by_six)
-            print("BSTAR drag term                                           = {}g").format(bstar_drag_term)
+            print("Mean Motion [Revs per day] Motion                           {}".format(mean_motion))
+            print("Revolution number at epoch [Revs]                           {}".format(revolution))
+            print("First Time Derivative of the Mean Motion divided by two     {}".format(first_time_derivative_of_the_mean_motion_divided_by_two))
+            print("Second Time Derivative of Mean Motion divided by six        {}".format(second_time_derivative_of_mean_motion_divided_by_six))
+            print("BSTAR drag term                                             {}".format(bstar_drag_term))
             print("----------------------------------------------------------------------------------------")
         else:
             pass
@@ -123,9 +152,10 @@ class tle(object):
         if self.check_valid_tle(tle) is True:
             inclination = float(line2[8:16])
             right_ascension = float(line2[17:25])
-            eccentricity = self.scientific_notation_conversion(line2[26:33])
+            eccentricity = self.decimal_conversion(line2[26:33])
             argument_periapsis = float(line2[34:42])
             mean_anomaly = float(line2[43:51])
+            mean_motion = float(line2[63:68])
         else:
             assert self.check_valid_tle(tle) is True, "Your TLE data doesn't apppear to be correct, check the data and try again."
 
@@ -133,12 +163,13 @@ class tle(object):
             print("----------------------------------------------------------------------------------------")
             print(tle)
             print("----------------------------------------------------------------------------------------")
-            print("Inclination [Degrees]                                     = {}g°").format(inclination)
-            print("Right Ascension of the Ascending Node [Degrees]           = {}g°").format(right_ascension)
-            print("Eccentricity                                              = {}g").format(eccentricity)
-            print("Argument of Perigee [Degrees]                             = {}g°").format(argument_perigee)
-            print("Mean Anomaly [Degrees] Anomaly                            = {}g°").format(mean_anomaly)
+            print("Inclination [Degrees]                                       {}°".format(inclination))
+            print("Right Ascension of the Ascending Node [Degrees]             {}°".format(right_ascension))
+            print("Eccentricity                                                {}".format(eccentricity))
+            print("Argument of Periapsis [Degrees]                             {}°".format(argument_periapsis))
+            print("Mean Anomaly [Degrees] Anomaly                              {}°".format(mean_anomaly))
+            print("Mean Motion [Revolutions/Day]                               {}°".format(mean_motion))
             print("----------------------------------------------------------------------------------------")
         else:
             pass
-        return title, inclination, right_ascension, eccentricity, argument_periapsis, mean_anomaly
+        return title, inclination, right_ascension, eccentricity, argument_periapsis, mean_anomaly, mean_motion
