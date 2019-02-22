@@ -9,38 +9,18 @@ class Draw(object):
     def __init__(self):
         return
 
+    max_radius = 0
+
     def plot_setup(self):
         fig = plt.figure(figsize=plt.figaspect(1))
         ax = fig.add_subplot(111, projection='3d', aspect=1)
-        max_radius = 0
-        Earth_radius = 6371
-        return fig, ax, max_radius, Earth_radius
-
-    def plot_earth(self):
-        "Draw Earth as a globe at the origin"
-
-        fig, ax, max_radius, Earth_radius = self.plot_setup()
-        max_radius = max(max_radius, Earth_radius)
-
-        # Coefficients in a0/c x**2 + a1/c y**2 + a2/c z**2 = 1
-        coefs = (1, 1, 1)
-        # Radii corresponding to he coefficients:
-        rx, ry, rz = [Earth_radius/np.sqrt(coef) for coef in coefs]
-
-        # Azimuth Angle & Altitude in Spherical Coordinates
-        phi = np.linspace(0, 2*np.pi, 100)
-        theta = np.linspace(0, np.pi, 100)
-
-        # Spherical Angles: X = r * cos(ϕ)sin(θ), Y = r * cos(ϕ)sin(θ), Z = r * cos(θ)
-        x = rx * np.outer(np.cos(phi), np.sin(theta))
-        y = ry * np.outer(np.sin(phi), np.sin(theta))
-        z = rz * np.outer(np.ones_like(phi), np.cos(theta))
-        #z = rz *  np.cos(theta)
-
-        ax.plot_surface(x, y, z,  rstride=4, cstride=4, color='g')
+        return fig, ax
 
     def plot_orbit(self,semi_major_axis, eccentricity=0, inclination=0, right_ascension=0, argument_perigee=0, true_anomaly=0, label=None):
         "Draws orbit around an earth in units of kilometers."
+
+        global ax
+        fig, ax = self.plot_setup()
 
         # Rotation matrix for inclination
         inc = inclination * np.pi / 180
@@ -62,7 +42,7 @@ class Draw(object):
         yr = r*np.sin(theta)
         zr = 0 * theta
 
-        pts = np.matrix(zip(xr,yr,zr))
+        pts = np.matrix(list(zip(xr,yr,zr)))
 
         # Rotate by inclination
         # Rotate by ascension + perigee
@@ -70,6 +50,10 @@ class Draw(object):
 
         # Turn back into 1d vectors
         xr,yr,zr = pts[:,0].A.flatten(), pts[:,1].A.flatten(), pts[:,2].A.flatten()
+
+        #Plot the Earth as a Sphere in the Plot
+        #x,y,z = self.plot_earth()
+        #ax.plot_surface(x, y, z,  rstride=4, cstride=4, color='g')
 
         # Plot the orbit
         ax.plot(xr, yr, zr, '-')
@@ -92,19 +76,22 @@ class Draw(object):
         c = np.sqrt(satx*satx + saty*saty)
         lat = np.arctan2(satz, c) * 180/np.pi
         lon = np.arctan2(saty, satx) * 180/np.pi
-        print("{}s : Lat: {}g° Long: {}g").format(label, lat, lon)
+        print("----------------------------------------------------------------------------------------")
+        print("{} : Projected Lat: {}° Long: {}°".format(label, lat, lon))
 
         # Draw radius vector from earth
-        # ax.plot([0, satx], [0, saty], [0, satz], 'r-')
+        ax.plot([0, satx], [0, saty], [0, satz], 'r-')
+
         # Draw red sphere for satellite
         ax.plot([satx],[saty],[satz], 'ro')
-
-        global max_radius
-        max_radius = max(max(r), max_radius)
+        ax.w_xaxis.set_pane_color((0.5, 0.5, 0.5, 1.0))
+        ax.w_yaxis.set_pane_color((0.5, 0.5, 0.5, 1.0))
+        ax.w_zaxis.set_pane_color((0.5, 0.5, 0.5, 1.0))
 
         # Write satellite name next to it
-        if label:
+        if label is not None:
             ax.text(satx, saty, satz, label, fontsize=12)
+
 
     def draw(self):
         orb = o.Orbit()
@@ -115,12 +102,17 @@ class Draw(object):
         title = orb.title
         semi_major_axis,true_anomaly = orb.infered_kelperian_elements()
         self.plot_orbit(semi_major_axis,eccentricity,inclination,right_ascension,argument_periapsis,true_anomaly,title)
-        # Adjustment of the axes, so that they all have the same span:
-        fig, ax, max_radius, Earth_radius = self.plot_setup()
 
-        for axis in 'xyz':
-            getattr(ax, 'set_{}lim'.format(axis))
-            ((-max_radius, max_radius))
+        print("----------------------------------------------------------------------------------------")
+        print(title)
+        print("----------------------------------------------------------------------------------------")
+        print("Semi Major Axis                                             {}".format(semi_major_axis))
+        print("Inclination [Degrees]                                       {}°".format(inclination))
+        print("Right Ascension of the Ascending Node [Degrees]             {}°".format(right_ascension))
+        print("Eccentricity                                                {}".format(eccentricity))
+        print("Argument of Periapsis [Degrees]                             {}°".format(argument_periapsis))
+        print("True Anomaly [Degrees]                                      {}°".format(true_anomaly))
+        print("----------------------------------------------------------------------------------------")
 
         # Draw figure
         plt.show()
