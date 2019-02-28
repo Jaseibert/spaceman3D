@@ -155,21 +155,7 @@ class tle(object):
             eccentricity = self.decimal_conversion(line2[26:33])
             argument_periapsis = float(line2[34:42])
             mean_anomaly = float(line2[43:51])
-            mean_motion = float(line2[63:68])
+            mean_motion = float(line2[52:63])
         else:
             assert self.check_valid_tle(tle) is True, "Your TLE data doesn't apppear to be correct, check the data and try again."
-
-        if print_info is True:
-            print("----------------------------------------------------------------------------------------")
-            print(tle)
-            print("----------------------------------------------------------------------------------------")
-            print("Inclination [Degrees]                                       {}°".format(inclination))
-            print("Right Ascension of the Ascending Node [Degrees]             {}°".format(right_ascension))
-            print("Eccentricity                                                {}".format(eccentricity))
-            print("Argument of Periapsis [Degrees]                             {}°".format(argument_periapsis))
-            print("Mean Anomaly [Degrees] Anomaly                              {}°".format(mean_anomaly))
-            print("Mean Motion [Revolutions/Day]                               {}°".format(mean_motion))
-            print("----------------------------------------------------------------------------------------")
-        else:
-            pass
         return title, inclination, right_ascension, eccentricity, argument_periapsis, mean_anomaly, mean_motion
