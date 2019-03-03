@@ -4,7 +4,7 @@ SpaceMan is a python package that accomplishes several unique tasks within the s
 
 # Basic Usage
 
-`python3
+`python
 from spaceman.Draw import Draw
 from spaceman.Orbit import Orbit, satellites
 
@@ -16,8 +16,11 @@ d = Draw()
 d.draw_orbit(satellites.ISS, satellites.Dragon)
 `
 Using the code above will output an image that resembles this:
+
 ![alt text](./img/ISS_Dragon.png)
 
-Along with this, by calling the `draw_orbit()` you will print out the keplerian elements used to calculate the satellites trajectory.![alt text](./img/example_output.png)
+Along with this, by calling the `draw_orbit()` you will print out the keplerian elements used to calculate the satellites trajectory.
 
-I know that I struggled to find resources explaining the mathematics used within Astrodynamics and orbital mechanics, so I have included the "OrbitalMechanicsCalculations.txt" file that explains the mathematics behind several of the more complex functions and the logic behind them. 
+![alt text](./img/example_output.png)
+
+I know that I struggled to find resources explaining the mathematics used within Astrodynamics and orbital mechanics, so I have included the "OrbitalMechanicsCalculations.txt" file that explains the mathematics behind several of the more complex functions and the logic behind them.
