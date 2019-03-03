@@ -4,7 +4,7 @@ SpaceMan is a python package that accomplishes several unique tasks within the s
 
 # Basic Usage
 
-`python
+```python
 from spaceman.Draw import Draw
 from spaceman.Orbit import Orbit, satellites
 
@@ -13,8 +13,8 @@ o = Orbit()
 d = Draw()
 
 #Call the draw Orbit function
-d.draw_orbit(satellites.ISS, satellites.Dragon)
-`
+d.draw_orbit(satellites.ISS, satellites.Dragon)```
+
 Using the code above will output an image that resembles this:
 
 ![alt text](./img/ISS_Dragon.png)
