@@ -13,7 +13,8 @@ o = Orbit()
 d = Draw()
 
 #Call the draw Orbit function
-d.draw_orbit(satellites.ISS, satellites.Dragon)```
+d.draw_orbit(satellites.ISS, satellites.Dragon)
+```
 
 Using the code above will output an image that resembles this:
 
