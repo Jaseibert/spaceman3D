@@ -1,8 +1,10 @@
 from __future__ import division
 import matplotlib.pyplot as plt
+plt.style.use('dark_background')
 from mpl_toolkits.mplot3d import Axes3D
 import numpy as np
-import spaceman.Orbit.orbit as o
+from spaceman.Orbit import Orbit
+import spaceman.Orbit.satellites as s
 
 class Draw(object):
 
@@ -39,16 +41,15 @@ class Draw(object):
     def plot_orbit(self,semi_major_axis, eccentricity=0, inclination=0, right_ascension=0, argument_perigee=0, true_anomaly=0, label=None):
         "Draws orbit around an earth in units of kilometers."
 
-        orb = o.Orbit()
-
+        o = Orbit()
         # Rotation matrix for inclination
-        inc = orb.degree_to_radian(inclination)
+        inc = o.degree_to_radian(inclination)
         R = np.matrix([[1, 0, 0],
                        [0, np.cos(inc), -np.sin(inc)],
                        [0, np.sin(inc), np.cos(inc)]    ])
 
         # Rotation matrix for argument of perigee + right ascension
-        rot = orb.degree_to_radian(right_ascension + argument_perigee)
+        rot = o.degree_to_radian(right_ascension + argument_perigee)
         R2 = np.matrix([[np.cos(rot), -np.sin(rot), 0],
                         [np.sin(rot), np.cos(rot), 0],
                         [0, 0, 1]   ])
@@ -73,7 +74,7 @@ class Draw(object):
         self.ax.plot(xr, yr, zr, '-')
 
         # Plot the satellite
-        sat_angle = orb.degree_to_radian(true_anomaly)
+        sat_angle = o.degree_to_radian(true_anomaly)
         satr = (semi_major_axis * (1-eccentricity**2)) / (1 + eccentricity*np.cos(sat_angle))
         satx = satr * np.cos(sat_angle)
         saty = satr * np.sin(sat_angle)
@@ -94,41 +95,39 @@ class Draw(object):
         self.ax.plot([0, satx], [0, saty], [0, satz], 'r-')
 
         x,y,z = self.plot_earth()
-        self.ax.plot_surface(x, y, z,  rstride=4, cstride=4, alpha=0.4, color='g')
+
+        self.ax.plot_surface(x, y, z,  rstride=4, cstride=4, alpha=0.3, color='g')
 
         # Draw red sphere for satellite
         self.ax.plot([satx],[saty],[satz], 'ro')
-        ax.w_xaxis.set_pane_color((0.5, 0.5, 0.5, 1.0))
-        ax.w_yaxis.set_pane_color((0.5, 0.5, 0.5, 1.0))
-        ax.w_zaxis.set_pane_color((0.5, 0.5, 0.5, 1.0))
         #ax.view_init(, 35)
+
+        self.ax.set_axis_off()
 
         # Write satellite name next to it
         if label is not None:
-            self.ax.text(satx, saty, satz, label, fontsize=12)
+            self.ax.text(satx, saty, satz, label, fontsize=10)
 
-    def draw(self):
+    def draw_orbit(self,*argv):
         '''This function calls the plot orbit function using the TLE elements defined in orbit.py'''
-        orb = o.Orbit()
-        inclination = orb.inclination
-        eccentricity = orb.eccentricity
-        right_ascension = orb.right_ascension
-        argument_periapsis = orb.argument_periapsis
-        title = orb.title
-        semi_major_axis = orb.semi_major_axis_calc()
-        true_anomaly = orb.anomoly_calc()
-        self.plot_orbit(semi_major_axis,eccentricity,inclination,right_ascension,argument_periapsis,true_anomaly,title)
+        o = Orbit()
+        for arg in argv:
+            o.import_tle(arg)
+            semi_major_axis = o.semi_major_axis_calc()
+            true_anomaly = o.anomoly_calc()
+            self.plot_orbit(semi_major_axis,o.eccentricity,o.inclination,o.right_ascension,
+                            o.argument_periapsis,true_anomaly,o.title)
 
-        #Print Keplerian (Orbital) Elements
-        print("----------------------------------------------------------------------------------------")
-        print("----------------------------------------------------------------------------------------")
-        print("Semi Major Axis [kilometers]                                {}".format(semi_major_axis))
-        print("Inclination [Degrees]                                       {}°".format(inclination))
-        print("Right Ascension of the Ascending Node [Degrees]             {}°".format(right_ascension))
-        print("Eccentricity                                                {}".format(eccentricity))
-        print("Argument of Periapsis [Degrees]                             {}°".format(argument_periapsis))
-        print("True Anomaly [Degrees]                                      {}°".format(true_anomaly))
-        print("----------------------------------------------------------------------------------------")
+            #Print Keplerian (Orbital) Elements
+            print("----------------------------------------------------------------------------------------")
+            print("----------------------------------------------------------------------------------------")
+            print("Semi Major Axis [kilometers]                                {}".format(semi_major_axis))
+            print("Inclination [Degrees]                                       {}°".format(o.inclination))
+            print("Right Ascension of the Ascending Node [Degrees]             {}°".format(o.right_ascension))
+            print("Eccentricity                                                {}".format(o.eccentricity))
+            print("Argument of Periapsis [Degrees]                             {}°".format(o.argument_periapsis))
+            print("True Anomaly [Degrees]                                      {}°".format(true_anomaly))
+            print("----------------------------------------------------------------------------------------")
 
         for axis in 'xyz':
             getattr(self.ax, 'set_{}lim'.format(axis))((-self.max_radius, self.max_radius))

@@ -6,17 +6,22 @@ import spaceman.Orbit.tle as t
 
 class Orbit(object):
 
-    def __init__(self):
+    def __init__(self,title='',right_ascension=0,eccentricity=0,argument_periapsis=0,mean_anomaly=0,mean_motion=0,epoch_date=0):
+        self.title = title
+        self.right_ascension = right_ascension
+        self.eccentricity = eccentricity
+        self.argument_periapsis = argument_periapsis
+        self.mean_anomaly = mean_anomaly
+        self.mean_motion = mean_motion
+        self.epoch_date = epoch_date
         return
 
-    elem1 = """ISS (ZARYA)
-    1 25544U 98067A   19054.54477108  .00016717  00000-0  10270-3 0  9035
-    2 25544  51.6375 206.2871 0005712  59.5442 300.6274 15.53254633 37592"""
-
-
-    TLE = t.tle()
-    title, inclination, right_ascension, eccentricity, argument_periapsis, mean_anomaly, mean_motion = TLE.tle_keplerian_elements(tle=elem1)
-    epoch_date = TLE.tle_satellite_time_elements(tle=elem1)
+    def import_tle(self,element):
+        '''This function uses TLE element information to populate the relavant instance variables.'''
+        TLE = t.tle()
+        self.title, self.inclination, self.right_ascension, self.eccentricity, self.argument_periapsis, self.mean_anomaly, self.mean_motion = TLE.tle_keplerian_elements(tle=element)
+        self.epoch_date = TLE.tle_satellite_time_elements(tle=element)
+        return
 
     def radian_to_degree(self,val):
         val_rad = val * 180/np.pi
@@ -57,7 +62,6 @@ class Orbit(object):
         #Calls the epoch_time_diff() and motion_per_sec()
         diff_seconds = self.epoch_time_diff()
         motion_per_sec = self.motion_radian_per_second()
-        # Why Radians -> Mod 360
         adjusted_mean_anomaly = self.degree_to_radian(diff_seconds*motion_per_sec)
         self.mean_anomaly += adjusted_mean_anomaly % 360
         return self.mean_anomaly
@@ -70,18 +74,18 @@ class Orbit(object):
 
     def semi_major_axis_calc(self):
         '''This function calculates the semi major axis.'''
+        GM = 398600.4418
         period = self.period_calc()
         motion_per_sec = self.motion_radian_per_second()
-        GM = 398600.4418
         semi_major_axis = (GM**(1/3))/((motion_per_sec)**(2/3))
         return semi_major_axis
 
-    def anomoly_calc(self):
+    def true_anomoly_calc(self):
         '''This function calculates the true and eccentric anomalies.'''
         #self.mean_anomaly =
         self.mean_anomaly = self.radian_to_degree(self.time_adjusted_mean_anomaly_calc())
         eccentric_anomaly = self.eccentric_anomoly_calculation(self.eccentricity, self.mean_anomaly)
         true_anomaly = 2*np.arctan2(np.sqrt(1+self.eccentricity) * np.sin(eccentric_anomaly/2.0), np.sqrt(1-self.eccentricity) * np.cos(eccentric_anomaly/2.0))
-        eccentric_anomaly *= 180/np.pi
-        true_anomaly *= 180/np.pi
+        #eccentric_anomaly *= 180/np.pi
+        true_anomaly = radian_to_degree(true_anomaly)
         return true_anomaly
