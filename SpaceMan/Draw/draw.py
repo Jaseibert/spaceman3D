@@ -13,18 +13,12 @@ class Draw(object):
 
     fig = plt.figure(figsize=plt.figaspect(1))
     ax = fig.add_subplot(111, projection='3d', aspect=1)
-    max_radius = 0
 
     def plot_earth(self):
         "Draw Earth as a globe at the origin"
 
         Earth_radius = 6371
-        self.max_radius = max(self.max_radius, Earth_radius)
-
-        # Coefficients in a0/c x**2 + a1/c y**2 + a2/c z**2 = 1
         coefs = (1, 1, 1)
-
-        # Radii corresponding to he coefficients:
         rx, ry, rz = [Earth_radius/np.sqrt(coef) for coef in coefs]
 
         # Azimuth Angle & Altitude in Spherical Coordinates
@@ -86,22 +80,17 @@ class Draw(object):
         satz = sat[0,2]
 
         c = np.sqrt(satx*satx + saty*saty)
-        lat = np.arctan2(satz, c) * 180/np.pi
-        lon = np.arctan2(saty, satx) * 180/np.pi
+        lat = o.degree_to_radian(np.arctan2(satz, c))
+        lon = o.degree_to_radian(np.arctan2(saty, satx))
         print("----------------------------------------------------------------------------------------")
         print("{} : Projected Lat: {}° Long: {}°".format(label, lat, lon))
 
-        # Draw radius vector from earth
+        # Draw radius vector from earth & Red sphere for satellite
         self.ax.plot([0, satx], [0, saty], [0, satz], 'r-')
+        self.ax.plot([satx],[saty],[satz], 'ro')
 
         x,y,z = self.plot_earth()
-
         self.ax.plot_surface(x, y, z,  rstride=4, cstride=4, alpha=0.3, color='g')
-
-        # Draw red sphere for satellite
-        self.ax.plot([satx],[saty],[satz], 'ro')
-        #ax.view_init(, 35)
-
         self.ax.set_axis_off()
 
         # Write satellite name next to it
@@ -111,13 +100,14 @@ class Draw(object):
     def draw_orbit(self,*argv):
         '''This function calls the plot orbit function using the TLE elements defined in orbit.py'''
         o = Orbit()
+        semi_major_axes = []
         for arg in argv:
             o.import_tle(arg)
             semi_major_axis = o.semi_major_axis_calc()
+            semi_major_axes.append(semi_major_axis)
             true_anomaly = o.anomoly_calc()
             self.plot_orbit(semi_major_axis,o.eccentricity,o.inclination,o.right_ascension,
                             o.argument_periapsis,true_anomaly,o.title)
-
             #Print Keplerian (Orbital) Elements
             print("----------------------------------------------------------------------------------------")
             print("----------------------------------------------------------------------------------------")
@@ -129,7 +119,9 @@ class Draw(object):
             print("True Anomaly [Degrees]                                      {}°".format(true_anomaly))
             print("----------------------------------------------------------------------------------------")
 
-        for axis in 'xyz':
-            getattr(self.ax, 'set_{}lim'.format(axis))((-self.max_radius, self.max_radius))
+        #Scale Axes proportionate to the largest satellites radius
+        max_axis = max(semi_major_axes)
+        self.ax.auto_scale_xyz([-max_axis,max_axis],[-max_axis,max_axis],[-max_axis,max_axis])
+
         # Draw figure
         plt.show()
