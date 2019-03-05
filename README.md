@@ -2,14 +2,27 @@
 
 SpaceMan is a python package that accomplishes several unique tasks within the space of Astrodynamics. The package gives users the ability to parse satellite Two-Line Element (TLE) Data into its Ballistic, Keplerian, and Satellite Identifying orbital elements. Beyond, this SpaceMan uses a `Matplotlib` 3D plotting toolkit to plot the orbit of the satellites.
 
+# Basic TLE Parser Functionality
+
+```python
+from spaceman.Orbit import tle, satellites
+
+#Create a class instance of tle()
+t = tle()
+
+#Call the draw orbit function
+t.tle_satellite_elements(satellites.ISS, satellites.Dragon,print_info=True)
+```
+
 # Basic Plotting Functionality
+
+The plotting functionality mentioned below is accessed through the Draw() module.
 
 ```python
 from spaceman.Draw import Draw
-from spaceman.Orbit import Orbit, satellites
+from spaceman.Orbit import satellites
 
-#Create Class instances
-o = Orbit()
+#Create a class instance of Draw()
 d = Draw()
 
 #Call the draw Orbit function
@@ -31,4 +44,4 @@ Along with this, by calling the `draw_orbit(element ,print_info=True)` you will 
 
 
 ## Orbital Mechanic's Resources
-I know that I struggled to find resources explaining the mathematics used within Astrodynamics and orbital mechanics, so I have included the "OrbitalMechanicsCalculations.txt" file that explains the mathematics behind several of the more complex functions and the logic behind them.
+I know that I struggled to find resources explaining the mathematics used within Astrodynamics and orbital mechanics, so I have included the "PackageCalculations.txt" file that explains the mathematics behind the functions in Orbit.py and tle.py and the logic behind each function.
