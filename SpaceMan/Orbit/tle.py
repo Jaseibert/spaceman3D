@@ -136,6 +136,14 @@ class tle(object):
             argument_periapsis = float(line2[34:42])
             mean_anomaly = float(line2[43:51])
             mean_motion = float(line2[52:63])
+            epoch_year = int(line1[18:20])
+            year = (
+                2000 + epoch_year
+                if epoch_year < 70
+                else 1900 + epoch_year
+            )
+            epoch = float(line1[20:32])
+            epoch_date = datetime(year=year, month=1, day=1, tzinfo=tz.utc) + timedelta(days=epoch-1)
         else:
             assert self.check_valid_tle(tle) is True, "Your TLE data doesn't apppear to be correct, check the data and try again."
-        return title, inclination, right_ascension, eccentricity, argument_periapsis, mean_anomaly, mean_motion
+        return title, inclination, right_ascension, eccentricity, argument_periapsis, mean_anomaly, mean_motion, epoch_date

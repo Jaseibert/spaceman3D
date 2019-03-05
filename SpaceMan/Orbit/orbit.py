@@ -19,8 +19,7 @@ class Orbit(object):
     def import_tle(self,element):
         '''This function uses TLE element information to populate the relavant instance variables.'''
         TLE = t.tle()
-        self.title, self.inclination, self.right_ascension, self.eccentricity, self.argument_periapsis, self.mean_anomaly, self.mean_motion = TLE.tle_keplerian_elements(tle=element)
-        self.epoch_date = TLE.tle_satellite_time_elements(tle=element)
+        self.title, self.inclination, self.right_ascension, self.eccentricity, self.argument_periapsis, self.mean_anomaly, self.mean_motion, self.epoch_date = TLE.tle_keplerian_elements(tle=element)
         return
 
     def radian_to_degree(self,val):
