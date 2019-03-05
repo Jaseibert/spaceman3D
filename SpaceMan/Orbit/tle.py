@@ -47,9 +47,14 @@ class tle(object):
     def scientific_notation_conversion(self,val):
         '''This function takes the tle format of floats (01234-5) a + or -, and converts them into 1234.000000..5'''
         split = val.split('-')
-        X_digits = split[0]
+        #Handles Negative Values
+        if len(split) > 2:
+            X_digits = split[0] + split[1]
+            exp = split[2]
+        else:
+            X_digits = split[0]
+            exp = split[1]
         multiplier = 0.1**int(len(X_digits))
-        exp = split[1]
         base = multiplier*int(X_digits)
         exponent = 10**int(exp)
         return base * exponent
@@ -75,35 +80,6 @@ class tle(object):
                 if epoch_year < 70
                 else 1900 + epoch_year)
             epoch = float(line1[20:32])
-            epoch_date = dt.datetime(year=year, month=1, day=1, tzinfo=tz.utc) + dt.timedelta(days=epoch-1)
-        else:
-            assert self.check_valid_tle(tle) is True, "Your TLE data doesn't apppear to be correct, check the data and try again."
-
-        if print_info is True:
-            print("----------------------------------------------------------------------------------------")
-            print(tle)
-            print("----------------------------------------------------------------------------------------")
-            print("Satellite Name                                              {}").format(title)
-            print("Satellite Number                                            {} ({})").format(satellite_number, "Unclassified" if classification == 'U' else "Classified")
-            print("International Designator                                    YR:{}, LAUNCH #:{}, PIECE: {}").format(international_designator_year, international_designator_launch_number, international_designator_piece_of_launch)
-            print("Epoch Date                                                  {} (YR:{} DAY:{})").format(epoch_date.strftime("%Y-%m-%d %H:%M:%S.%f %Z"), year, epoch)
-            print("Element number                                              {}").format(element_number)
-            print("----------------------------------------------------------------------------------------")
-        else:
-            pass
-        return title, satellite_number, classification, international_designator_year, international_designator_launch_number,
-        international_designator_piece_of_launch, element_number, epoch_year, year, epoch, epoch_date
-
-    def tle_satellite_time_elements(self,tle, print_info=False):
-        '''This function parses and returns the satellite's basic TLE elements as individual components.'''
-        title, line1, line2 =  self.parse_tle(tle)
-        if self.check_valid_tle(tle) is True:
-            epoch_year = int(line1[18:20])
-            year = (
-                2000 + epoch_year
-                if epoch_year < 70
-                else 1900 + epoch_year)
-            epoch = float(line1[20:32])
             epoch_date = datetime(year=year, month=1, day=1, tzinfo=tz.utc) + timedelta(days=epoch-1)
         else:
             assert self.check_valid_tle(tle) is True, "Your TLE data doesn't apppear to be correct, check the data and try again."
@@ -112,17 +88,22 @@ class tle(object):
             print("----------------------------------------------------------------------------------------")
             print(tle)
             print("----------------------------------------------------------------------------------------")
+            print("Satellite Name                                              {}".format(title))
+            print("Satellite Number                                            {} ({})".format(satellite_number, "Unclassified" if classification == 'U' else "Classified"))
+            print("International Designator                                    YR:{}, LAUNCH #:{}, PIECE: {}".format(international_designator_year, international_designator_launch_number, international_designator_piece_of_launch))
             print("Epoch Date                                                  {} (YR:{} DAY:{})".format(epoch_date.strftime("%Y-%m-%d %H:%M:%S.%f %Z"), year, epoch))
+            print("Element number                                              {}".format(element_number))
             print("----------------------------------------------------------------------------------------")
         else:
             pass
-        return epoch_date
+        return title, satellite_number, classification, international_designator_year, international_designator_launch_number,
+        international_designator_piece_of_launch, element_number, epoch_year, year, epoch, epoch_date
+
 
     def tle_ballistic_elements(self,tle, print_info=False):
         '''This function parses and returns the ballistic TLE elements as individual components.'''
         title, line1, line2 =  self.parse_tle(tle)
         if self.check_valid_tle(tle) is True:
-            mean_motion = float(line2[52:63])
             revolution = float(line2[63:68])
             first_time_derivative_of_the_mean_motion_divided_by_two = float(line1[33:43])
             second_time_derivative_of_mean_motion_divided_by_six = self.scientific_notation_conversion(line1[44:52])
@@ -134,7 +115,6 @@ class tle(object):
             print("----------------------------------------------------------------------------------------")
             print(tle)
             print("----------------------------------------------------------------------------------------")
-            print("Mean Motion [Revs per day] Motion                           {}".format(mean_motion))
             print("Revolution number at epoch [Revs]                           {}".format(revolution))
             print("First Time Derivative of the Mean Motion divided by two     {}".format(first_time_derivative_of_the_mean_motion_divided_by_two))
             print("Second Time Derivative of Mean Motion divided by six        {}".format(second_time_derivative_of_mean_motion_divided_by_six))
@@ -142,7 +122,7 @@ class tle(object):
             print("----------------------------------------------------------------------------------------")
         else:
             pass
-        return title, mean_motion, revolution, first_time_derivative_of_the_mean_motion_divided_by_two,
+        return title, revolution, first_time_derivative_of_the_mean_motion_divided_by_two,
         second_time_derivative_of_mean_motion_divided_by_six, bstar_drag_term
 
 

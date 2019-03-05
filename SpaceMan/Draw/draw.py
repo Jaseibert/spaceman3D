@@ -1,7 +1,7 @@
-from __future__ import division
 import matplotlib.pyplot as plt
 plt.style.use('dark_background')
 from mpl_toolkits.mplot3d import Axes3D
+from mpltools import layout
 import numpy as np
 from spaceman.Orbit import Orbit
 import spaceman.Orbit.satellites as s
@@ -11,7 +11,7 @@ class Draw(object):
     def __init__(self):
         return
 
-    fig = plt.figure(figsize=plt.figaspect(1))
+    fig = plt.figure(figsize=layout.figaspect(0.5))
     ax = fig.add_subplot(111, projection='3d', aspect=1)
 
     def plot_earth(self):
