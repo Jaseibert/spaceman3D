@@ -1,0 +1,18 @@
+CURRENT PACKAGE STRUCTURE
+SpaceMan/                         Root Directory
+    spaceman/                     Top-level package
+        __init__.py               Initialize the spaceman package
+        Draw/                     Subpackage for Drawing Satellite Orbits
+            __init__.py
+            draw.py               Module for Drawing Satellite Orbits
+             ...
+        Orbit/                    Subpackage for Orbital Calculations & TLE Parsing
+            __init__.py
+            orbit.py              Module for calculating orbital components
+            tle.py                Module for Parsing TLE Element information
+            satellites.py         Contains several Example TLE satellite elements
+            ...
+        Tests/                    Subpackage for Testing
+            __init__.py
+            test.py               Module for Testing
+            ...

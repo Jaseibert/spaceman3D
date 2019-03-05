@@ -1,0 +1,117 @@
+Orbit.py Calculations
+-------------------------------------------------------------------------------------------------------------
+-------------------------------------------------------------------------------------------------------------
+
+1. Numerical Approximation of Eccentric Anomaly: (Newtons Method)
+        Function Name:      eccentric_anomoly_calculation
+        Function Arguments: initial, mean_anomaly, eccentricity, max_iterations, max_accuracy
+        Module:             Orbit.py
+        Source:             https://en.wikipedia.org/wiki/Kepler%27s_equation
+                            (Numerical Approximation of Inverse Problem)
+        Notes:              Most Elliptical Orbits at E(0) can be instantiated as being equal to the mean anomaly
+                            at time (t). However, orbits with an eccentricity greater than 80% or .8, E(0) is
+                            better approximated as equal to pi (π). This function is considered to be optimized when
+                            f(E) is less than the desired accuracy (max_accuracy).
+        Variables/Arguments:
+            M = Mean Anomaly = mean_anomaly
+            E = Eccentric Anomaly
+            e = eccentricity = eccentricity
+            t = time
+            n = iteration number = ith iteration in max_iterations
+            E(n) = Eccentric Anomaly at the nth iteration = initial
+
+        Kepler's Equation:
+            M = E - [e * sin(E)]
+            f(E) = E - [e * sin(E)] - M(t)
+
+        Newtons Method:
+            E(n+1) = E(n)- (f(E(n)) / f'(E(n))
+                   = E(n) - (E(n) - [e * sin(E(n)] - M(t)) / (1 - [e * cos(E(n)])
+
+Calculating the difference between the Epoch Date and Now in Seconds
+
+epoch_time_diff
+
+-------------------------------------------------------------------------------------------------------------
+
+3. Convert TLE Mean Motion from (Revolutions/Day) into (Radians/Second)
+        Function Name:      motion_radian_per_second
+        Function Arguments: None
+        Module:             Orbit.py
+        Source:             https://space.stackexchange.com/questions/18289/how-to-get-semi-major-axis-from-tle
+                            (Numerical Approximation of Inverse Problem)
+        Notes:              The next goal is to create a function that will calculate the
+                            semi-major axis of the satellites orbit. In order to do this
+                            we need to convert the mean motion metric from the TLE element,
+                            from Revolutions per day into radians per second.
+
+        Variables:
+            Mean Motion (Rev/day) = The TLE mean motion element
+
+        Conversion Equation:
+            Mean Motion (Rad/Sec) = 2π / (24hrs•60mins•60sec) * (Mean Motion (Rev/Day))
+
+-------------------------------------------------------------------------------------------------------------
+Adjusting the Mean Anomaly relative to the
+        Function Name:      motion_radian_per_second
+        Function Arguments: None
+        Module:             Orbit.py
+        Source:             https://space.stackexchange.com/questions/18289/how-to-get-semi-major-axis-from-tle
+                            (Numerical Approximation of Inverse Problem)
+        Notes:              The next goal is to create a function that will calculate the
+                            semi-major axis of the satellites orbit. In order to do this
+                            we need to convert the mean motion metric from the TLE element,
+                            from Revolutions per day into radians per second.
+
+        Variables:
+            Mean Motion (Rev/day) = The TLE mean motion element
+
+        Conversion Equation:
+            Mean Motion (Rad/Sec) = 2π / (24hrs•60mins•60sec) * (Mean Motion (Rev/Day))
+
+time_adjusted_mean_anomaly_calc
+
+
+
+-------------------------------------------------------------------------------------------------------------
+period_calc
+
+
+-------------------------------------------------------------------------------------------------------------
+semi_major_axis_calc
+
+-------------------------------------------------------------------------------------------------------------
+
+tle.py Calculations
+-------------------------------------------------------------------------------------------------------------
+-------------------------------------------------------------------------------------------------------------
+Calculate the Checksum value at the end of TLE elemental lines
+
+Function Name:      tle_checksum_algortithm
+Function Arguments: line
+Module:             tle.py
+Source:             *
+Notes:              The goal with this function is to validate the modulo 10 checksum value
+                    at the end of each TLE elemental line. For those who are not familiar with
+                    modular arithmetic, it is pretty simple. If you were to divide 2 into 5,
+                    you would get 2.5. However, using Euclidian division you would get 2 with a remainder
+                    of 1. It is this remainder that is important in what we call a modulo operation "A operation
+                    in modular arithmetic". Within a modulo operation, we would restate the example above
+                    and say that (5 modulo 2) is equal to 1. With that foreground, we can transition back to the
+                    checksum concept. It can be stated as the (checksum modulo 10) is equal to the number at the
+                    end of each TLE line. This next begs the question. How do you calculate the checksum. For TLE
+                    checksum's, each digit is summed to the next, with '-' being equal to 1, and '+', and spaces
+                    equal to 0. Thus our function takes these rules into account and applies the modulo 10 operation
+                    to calculate the checksum. Another important side note is that the value at the end of the TLE element
+                    representing the checksum value is not included in the calculation.
+
+Variables:
+    line = a single TLE elemental line
+
+Equation Rules:
+    digit = digit
+    '-' = 1
+    '+' = 0
+    ' ' = 0
+
+Checksum Calculation = sum(all characters) modulo 10

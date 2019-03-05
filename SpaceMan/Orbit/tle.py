@@ -35,7 +35,6 @@ class tle(object):
     def check_valid_tle(self,tle):
         '''This function validates the tle by checking that several tle elements are valid.'''
         title, line1, line2 =  self.parse_tle(tle)
-
         line_index = self.validation_framework(line1[0],line2[0],'1','2')
         sat_num = self.validation_framework(line1[2:7],line2[2:7],dual_condition=False)
         checksum_check = self.validation_framework(line1[-1],line2[-1],self.tle_checksum_algortithm(line1), self.tle_checksum_algortithm(line2))
