@@ -2,7 +2,7 @@
 
 Spaceman3D is a python package that accomplishes several unique tasks within the space of Astrodynamics (pun intended). The package gives users the ability to parse satellite Two-Line Element (TLE) Data into its Ballistic, Keplerian, and satellite identifying orbital elements. Beyond, this SpaceMan uses a `Matplotlib` 3D plotting toolkit to plot the orbit of the satellites.
 
-![Spaceman3D Demo](https://i.imgur.com/W41jW2o.png)](https://vimeo.com/322704127 "Spaceman3D Draw Orbit Demonstration - Click to Watch!")
+[![Spaceman3D Demo](https://i.imgur.com/W41jW2o.png)](https://vimeo.com/322704127 "Spaceman3D Draw Orbit Demonstration - Click to Watch!")
 
 # Basic Plotting Functionality
 
