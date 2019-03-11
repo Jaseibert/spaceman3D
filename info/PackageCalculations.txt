@@ -4,7 +4,7 @@ Orbit.py Calculations
 
 1. Numerical Approximation of Eccentric Anomaly: (Newtons Method)
         Function Name:      eccentric_anomoly_calculation
-        Function Arguments: initial, mean_anomaly, eccentricity, max_iterations, max_accuracy
+        Class Method Args:  initial, mean_anomaly, eccentricity, max_iterations, max_accuracy
         Module:             Orbit.py
         Source:             https://en.wikipedia.org/wiki/Kepler%27s_equation
                             (Numerical Approximation of Inverse Problem)
@@ -28,15 +28,36 @@ Orbit.py Calculations
             E(n+1) = E(n)- (f(E(n)) / f'(E(n))
                    = E(n) - (E(n) - [e * sin(E(n)] - M(t)) / (1 - [e * cos(E(n)])
 
-Calculating the difference between the Epoch Date and Now in Seconds
+-------------------------------------------------------------------------------------------------------------
 
-epoch_time_diff
+2. Calculating the difference between the Epoch Date and Now in Seconds
+        Function Name:      epoch_time_diff
+        Class Method Args:  None
+        Module:             Orbit.py
+        Source:
+        Notes:              This function takes the epoch date provided by the TLE data supplied to
+                            orbit.py and calculates the difference in time between the Central US Standard
+                            Time (CST) and the Epoch Date. The CST is calculated by taking the Universal
+                            Standard Time (UTC) for the current moment and adding 6 hours to it. Once this is
+                            done, we need to standardize the temporal units into a common time unit seconds.
+                            This is done by multiplying 24 hrs in a day x 60 minutes in and hour and 60 seconds
+                            in a minute.
+
+        Variables/Arguments:
+            T  = Todays UTC datetime
+            Ep = Epoch Date
+
+        1st Equation:
+         diff = (T + 6hrs) - Ep
+
+        2nd Equation:
+         diff_seconds = (24*60*60) diff.days + diff.seconds + 1e-6*diff.microseconds
 
 -------------------------------------------------------------------------------------------------------------
 
 3. Convert TLE Mean Motion from (Revolutions/Day) into (Radians/Second)
         Function Name:      motion_radian_per_second
-        Function Arguments: None
+        Class Method Args:  None
         Module:             Orbit.py
         Source:             https://space.stackexchange.com/questions/18289/how-to-get-semi-major-axis-from-tle
                             (Numerical Approximation of Inverse Problem)
@@ -52,36 +73,48 @@ epoch_time_diff
             Mean Motion (Rad/Sec) = 2π / (24hrs•60mins•60sec) * (Mean Motion (Rev/Day))
 
 -------------------------------------------------------------------------------------------------------------
-Adjusting the Mean Anomaly relative to the
-        Function Name:      motion_radian_per_second
+
+Adjusting the Mean Anomaly relative to the Epoch Time Difference
+        Function Name:      time_adjusted_mean_anomaly_calc
         Function Arguments: None
         Module:             Orbit.py
-        Source:             https://space.stackexchange.com/questions/18289/how-to-get-semi-major-axis-from-tle
-                            (Numerical Approximation of Inverse Problem)
-        Notes:              The next goal is to create a function that will calculate the
-                            semi-major axis of the satellites orbit. In order to do this
-                            we need to convert the mean motion metric from the TLE element,
-                            from Revolutions per day into radians per second.
+        Source:
+        Notes:
 
         Variables:
             Mean Motion (Rev/day) = The TLE mean motion element
 
         Conversion Equation:
-            Mean Motion (Rad/Sec) = 2π / (24hrs•60mins•60sec) * (Mean Motion (Rev/Day))
-
-time_adjusted_mean_anomaly_calc
-
-
+            adjusted_mean_anomaly = self.degree_to_radian(diff_seconds*motion_per_sec)
+            self.mean_anomaly += adjusted_mean_anomaly % 360
 
 -------------------------------------------------------------------------------------------------------------
-period_calc
+Inferring the orbital period from the mean motion
+        Function Name:      period_calc
+        Function Arguments: None
+        Module:             Orbit.py
+        Source:
+        Notes:
 
+        Variables:
+            Mean Motion (Rev/day) = The TLE mean motion element
+
+        Conversion Equation:
+            day_seconds = 24*60*60
+            period = day_seconds * 1/self.mean_motion
 
 -------------------------------------------------------------------------------------------------------------
 semi_major_axis_calc
 
--------------------------------------------------------------------------------------------------------------
 
+
+
+
+anomoly_calc
+
+
+
+-------------------------------------------------------------------------------------------------------------
 tle.py Calculations
 -------------------------------------------------------------------------------------------------------------
 -------------------------------------------------------------------------------------------------------------

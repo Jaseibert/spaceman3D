@@ -3,8 +3,8 @@ plt.style.use('dark_background')
 from mpl_toolkits.mplot3d import Axes3D
 from mpltools import layout
 import numpy as np
-from spaceman.Orbit import Orbit
-import spaceman.Orbit.satellites as s
+from spaceman3D.Orbit import Orbit
+import spaceman3D.Orbit.satellites as s
 
 class Draw(object):
 

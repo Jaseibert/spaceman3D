@@ -2,3 +2,13 @@
 status.txt
 extra.txt
 __pycache__
+.ipynb_checkpoints
+__pycache__
+Spaceman3D.egg-info
+include/
+lib/
+pip-selfcheck.json
+Pipfile
+Pipfile.lock
+dist/
+build/

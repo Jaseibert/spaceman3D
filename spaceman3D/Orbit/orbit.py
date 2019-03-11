@@ -2,7 +2,7 @@ import numpy as np
 from datetime import datetime, timedelta
 import pytz as tz
 import urllib
-import spaceman.Orbit.tle as t
+import spaceman3D.Orbit.tle as t
 
 class Orbit(object):
 
