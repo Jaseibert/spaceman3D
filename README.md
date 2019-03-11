@@ -1,18 +1,8 @@
-# SpaceMan
+# Spaceman3D
 
-SpaceMan is a python package that accomplishes several unique tasks within the space of Astrodynamics. The package gives users the ability to parse satellite Two-Line Element (TLE) Data into its Ballistic, Keplerian, and Satellite Identifying orbital elements. Beyond, this SpaceMan uses a `Matplotlib` 3D plotting toolkit to plot the orbit of the satellites.
+Spaceman3D is a python package that accomplishes several unique tasks within the space of Astrodynamics (pun intended). The package gives users the ability to parse satellite Two-Line Element (TLE) Data into its Ballistic, Keplerian, and satellite identifying orbital elements. Beyond, this SpaceMan uses a `Matplotlib` 3D plotting toolkit to plot the orbit of the satellites.
 
-# Basic TLE Parser Functionality
-
-```python
-from spaceman3D.Orbit import tle, satellites
-
-#Create a class instance of tle()
-t = tle()
-
-#Call the draw orbit function
-t.tle_satellite_elements(satellites.ISS, satellites.Dragon,print_info=True)
-```
+![Spaceman3D Demo](https://i.imgur.com/W41jW2o.png)](https://vimeo.com/322704127 "Spaceman3D Draw Orbit Demonstration - Click to Watch!")
 
 # Basic Plotting Functionality
 
@@ -36,6 +26,18 @@ Using the code above will output an image that resembles this:
 Along with this, by calling the `draw_orbit(element ,print_info=True)` you will print out the keplerian elements used to calculate the satellites trajectory.
 
 ![alt text](./info/img/example_output.png)
+
+# Basic TLE Parser Functionality
+
+```python
+from spaceman3D.Orbit import tle, satellites
+
+#Create a class instance of tle()
+t = tle()
+
+#Call the satellite elements function
+t.tle_satellite_elements(satellites.ISS, satellites.Dragon,print_info=True)
+```
 
 ## Orbital Mechanic's Resources
 I know that I struggled to find resources explaining the mathematics used within Astrodynamics and orbital mechanics, so I have included the "PackageCalculations.txt" file that explains the mathematics behind the functions in Orbit.py and tle.py and the logic behind each function.
