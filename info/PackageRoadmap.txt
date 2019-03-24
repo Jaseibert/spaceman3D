@@ -7,16 +7,16 @@ Sprint 1: Create MVP Modules with Basic functionality (Done)
     - Create project README.md
 
 Sprint 2: Optimize and Improve on the Basic Modules (In-Progress)
-    - Create a dictionary with a few example satellites to test.
-    - Add print functionality to the TLE parsing, and the Draw orbit functions.
-    - Optimize the 3D UI.
+    - Create a dictionary with a few example satellites to test.(Done)
+    - Add print functionality to the TLE parsing, and the Draw orbit functions. (Done)
+    - Optimize the 3D UI. (Done)
     - Start on a Document that explains the current functions in relation to
       orbital mechanical concepts.
     - Create tests.py
 
 Sprint 3: Build out Analytics Capabilities
-    - Create & Release beta version of PyPi
-    - Create functions that find each of the individual components in a TLE.
+    - Create & Release beta version of PyPi (Done)
+    - Create functions that find each of the individual components in a TLE.(Done)
     - Eliminate the larger functions that parse and return multiple elements.
     - Add functionality to create DataFrames out of TLE Data
     - Add X,Y,Z arrows to sphere in Draw.py

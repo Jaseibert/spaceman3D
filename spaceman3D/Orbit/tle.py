@@ -44,14 +44,14 @@ class tle(object):
             return False
 
     def scientific_notation_conversion(self,val):
-        '''This function takes the tle format of floats (01234-5) a + or -, and converts them into 1234.000000..5'''
+        '''This function takes the tle format of floats (01234-5) a + or -, and converts them into 1.234e-08'''
         split = val.split('-')
         #Handles Negative Values
         if len(split) > 2:
-            X_digits = split[0] + split[1]
-            exp = split[2]
+            X_digits = "-" + split[1]
+            exp = "-"+split[2]
         else:
-            X_digits = split[0]
+            X_digits = "-"+split[0]
             exp = split[1]
         multiplier = 0.1**int(len(X_digits))
         base = multiplier*int(X_digits)
@@ -61,6 +61,25 @@ class tle(object):
     def decimal_conversion(self,val):
         value = float(f'{val[0]}.{val[1:]}')
         return value
+
+    def individual_element(self,tle,line,start,end,func=None):
+        '''This function is the template to parse the individual elements.'''
+        title, line1, line2 =  self.parse_tle(tle)
+        if self.check_valid_tle(tle) is True:
+            if line == 1:
+                line = line1
+            elif line == 2:
+                line = line2
+            else:
+                pass
+
+            if func is not None:
+                var = func(line[start:end])
+            else:
+                var = line[start:end]
+            return var
+        else:
+            assert self.check_valid_tle(tle) is True, "Your TLE data doesn't apppear to be correct, check the data and try again."
 
     def tle_satellite_elements(self,tle, print_info=False):
         '''This function parses and returns the satellite's basic TLE elements as individual components.'''
@@ -120,38 +139,108 @@ class tle(object):
             assert self.check_valid_tle(tle) is True, "Your TLE data doesn't apppear to be correct, check the data and try again."
         return title, inclination, right_ascension, eccentricity, argument_periapsis, mean_anomaly, mean_motion, epoch_date
 
+#################### Parsing the individual TLE components ####################
     def first_derivative_mean_motion_divided_by_two(self,tle):
         '''This function parses and returns the first derivative mean motion from the TLE element.'''
-        title, line1, line2 =  self.parse_tle(tle)
-        if self.check_valid_tle(tle) is True:
-            first_time_derivative_of_the_mean_motion_divided_by_two = float(line1[33:43])
-            return first_time_derivative_of_the_mean_motion_divided_by_two
-        else:
-            assert self.check_valid_tle(tle) is True, "Your TLE data doesn't apppear to be correct, check the data and try again."
-
-    def revolution(self,tle):
-        '''This function parses and returns the satellites revolution from the TLE element'''
-        title, line1, line2 =  self.parse_tle(tle)
-        if self.check_valid_tle(tle) is True:
-            revolution = float(line2[63:68])
-            return revolution
-        else:
-            assert self.check_valid_tle(tle) is True, "Your TLE data doesn't apppear to be correct, check the data and try again."
+        first_time_derivative_of_the_mean_motion_divided_by_two = self.individual_element(tle,1,33,43,func=float)
+        return first_time_derivative_of_the_mean_motion_divided_by_two
 
     def second_time_derivative_of_mean_motion_divided_by_six(self,tle):
         '''This function parses and returns the second derivative of mean motion from the TLE element'''
-        title, line1, line2 =  self.parse_tle(tle)
-        if self.check_valid_tle(tle) is True:
-            second_time_derivative_of_mean_motion_divided_by_six = self.scientific_notation_conversion(line1[44:52])
-            return second_time_derivative_of_mean_motion_divided_by_six
-        else:
-            assert self.check_valid_tle(tle) is True, "Your TLE data doesn't apppear to be correct, check the data and try again."
+        second_time_derivative_of_mean_motion_divided_by_six = self.individual_element(tle,1,44,52,func=self.scientific_notation_conversion)
+        return second_time_derivative_of_mean_motion_divided_by_six
 
     def bstar_drag_term(self,tle):
         '''This function parses and returns the Bstar drag term from the TLE element'''
-        title, line1, line2 =  self.parse_tle(tle)
-        if self.check_valid_tle(tle) is True:
-            bstar_drag_term = self.scientific_notation_conversion(line1[53:61])
-            return bstar_drag_term
-        else:
-            assert self.check_valid_tle(tle) is True, "Your TLE data doesn't apppear to be correct, check the data and try again."
+        bstar_drag_term = self.individual_element(tle,1,53,61,func=self.scientific_notation_conversion)
+        return bstar_drag_term
+
+    def satellite_number(self,tle):
+        '''This function parses and returns the satellite number from the TLE element'''
+        satellite_number = self.individual_element(tle,1,2,8,func=str)
+        classification = satellite_number[-1:]
+        satellite_number = int(satellite_number)
+        return satellite_number,classification
+
+    def international_designator_year(self,tle):
+        '''This function parses and returns the international designator year from the TLE element'''
+        international_designator_year = self.individual_element(tle,1,9,11,func=int)
+        return international_designator_year
+
+    def international_designator_launch_number(self,tle):
+        '''This function parses and returns the international designator launch number from the TLE element'''
+        international_designator_launch_number  = self.individual_element(tle,1,11,14,func=int)
+        return international_designator_launch_number
+
+    def international_designator_piece_of_launch(self,tle):
+        '''This function parses and returns the international designator launch number from the TLE element'''
+        international_designator_piece_of_launch  = self.individual_element(tle,1,14,17,func=str)
+        return international_designator_piece_of_launch
+
+    def element_number(self,tle):
+        '''This function parses and returns the element number from the TLE element'''
+        element_number = self.individual_element(tle,1,64,68,func=float)
+        return element_number
+
+    def epoch_year(self,tle,full_year=False):
+        '''This function parses and returns the epoch year from the TLE element'''
+        epoch_year = self.individual_element(tle,1,18,20,func=int)
+        #return epoch_year
+        try:
+            if full_year is not False:
+                if epoch_year < 70:
+                    year = 2000 + epoch_year
+                else:
+                    year = 1900 + epoch_year
+                return year
+            else:
+                return epoch_year
+        except:
+            assert full_year is not False or True, "The full_year argument must be a Boolean value"
+
+    def epoch(self,tle):
+        '''This function parses and returns the epoch (days) from the TLE element'''
+        epoch = self.individual_element(tle,1,20,32,func=float)
+        return epoch
+
+    def epoch_date(self,tle):
+        '''This function parses and returns the epoch date from the TLE element'''
+        epoch = self.epoch(tle)
+        year = self.epoch_year(tle,full_year=True)
+        epoch_date = datetime(year=year, month=1, day=1, tzinfo=tz.utc) + timedelta(days=epoch-1)
+        return epoch_date
+
+    def inclination(self,tle):
+        '''This function parses and returns the inclination of the satellite from the TLE element'''
+        inclination = self.individual_element(tle,2,8,16,func=float)
+        return inclination
+
+    def right_ascension(self,tle):
+        '''This function parses and returns the right_ascension of the satellites orbit from the TLE element'''
+        right_ascension = self.individual_element(tle,2,17,25,func=float)
+        return right_ascension
+
+    def eccentricity(self,tle):
+        '''This function parses and returns the eccentricity of the satellites orbit from the TLE element'''
+        eccentricity = self.individual_element(tle,2,26,33,func=self.decimal_conversion)
+        return eccentricity
+
+    def argument_periapsis(self,tle):
+        '''This function parses and returns the argument of periapsis of the satellites orbit from the TLE element'''
+        argument_periapsis = self.individual_element(tle,2,34,42,func=float)
+        return argument_periapsis
+
+    def mean_anomaly(self,tle):
+        '''This function parses and returns the mean anomaly of the satellites orbit from the TLE element'''
+        mean_anomaly = self.individual_element(tle,2,43,51,func=float)
+        return mean_anomaly
+
+    def mean_motion(self,tle):
+        '''This function parses and returns the mean motion of the satellites orbit from the TLE element'''
+        mean_motion = self.individual_element(tle,2,52,63,func=float)
+        return mean_motion
+
+    def revolution(self,tle):
+        '''This function parses and returns the satellites revolution from the TLE element'''
+        revolution = self.individual_element(tle,2,63,68,func=float)
+        return revolution

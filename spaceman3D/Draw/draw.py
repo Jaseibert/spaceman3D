@@ -63,7 +63,7 @@ class Draw(object):
         xr,yr,zr = pts[:,0].A.flatten(), pts[:,1].A.flatten(), pts[:,2].A.flatten()
 
         # Plot the orbit
-        self.ax.plot(xr, yr, zr, '-')
+        self.ax.plot(xr, yr, zr, color='g', linestyle='-')
 
         # Plot the satellite
         sat_angle = o.degree_to_radian(true_anomaly)
