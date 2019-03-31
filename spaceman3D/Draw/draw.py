@@ -12,7 +12,7 @@ class Draw(object):
         return
 
     fig = plt.figure(figsize=layout.figaspect(1))
-    ax = fig.add_subplot(111, projection='3d', aspect=1)
+    ax = fig.add_subplot(111, projection='3d',aspect=1)
 
     def plot_earth(self):
         "Draw Earth as a globe at the origin"
@@ -76,6 +76,7 @@ class Draw(object):
         satx = sat[0,0]
         saty = sat[0,1]
         satz = sat[0,2]
+        print(satx,satz,saty)
 
         c = np.sqrt(satx*satx + saty*saty)
         lat = o.degree_to_radian(np.arctan2(satz, c))
@@ -83,10 +84,24 @@ class Draw(object):
         print("----------------------------------------------------------------------------------------")
         print("{} : Projected Lat: {}° Long: {}°".format(label, lat, lon))
 
-        # Draw radius vector from earth & Red sphere for satellite
-        #self.ax.plot([0,0],[0,0],[0,0],'r-')
+        # Draw radius vector from earth & blue sphere for satellite
         self.ax.plot([0, satx], [0, saty], [0, satz], 'b-')
         self.ax.plot([satx],[saty],[satz], 'bo')
+
+        #Create X-axis Marker
+        self.ax.plot([0,7500],[0,0],[0,0],'r:')
+        self.ax.plot([7500],[0],[0],'r<')
+        self.ax.text(7510,0,0,s='X', fontsize=10,color='w')
+
+        #Create Y-axis Marker
+        self.ax.plot([0,0],[0,7500],[0,0],'r:')
+        self.ax.plot([0],[7500],[0],'r<')
+        self.ax.text(0,7510,0,s='Y',fontsize=10,color='w')
+
+        #Create Z-axis Marker
+        self.ax.plot([0,0],[0,0],[0,7500],'r:')
+        self.ax.plot([0],[0],[7500],'r^')
+        self.ax.text(0,0,7510,s='Z', fontsize=10,color='w')
 
         x,y,z = self.plot_earth()
         self.ax.plot_surface(x, y, z,  rstride=4, cstride=4, alpha=0.2, color='g')
