@@ -17,7 +17,7 @@ Sprint 3: Build out Analytics Capabilities
     - Create & Release beta version of PyPi (Done)
     - Create functions that find each of the individual components in a TLE.(Done)
         + Need to fix logic on the scientific_notation_conversion calculation.
-    - Eliminate the larger functions that parse and return multiple elements.
+    - Finish defining the math behind the functions ()
     - Add functionality to create DataFrames out of TLE Data
     - Add X,Y,Z arrows to sphere in Draw.py (Done)
     - Create tests.py

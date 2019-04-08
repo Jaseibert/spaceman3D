@@ -36,30 +36,35 @@ class Draw(object):
         "Draws orbit around an earth in units of kilometers."
 
         o = Orbit()
-        # Rotation matrix for inclination
-        inc = o.degree_to_radian(inclination)
-        R = np.matrix([[1, 0, 0],
-                       [0, np.cos(inc), -np.sin(inc)],
-                       [0, np.sin(inc), np.cos(inc)]])
 
-        # Rotation matrix for argument of perigee + right ascension
-        rot = o.degree_to_radian(right_ascension + argument_perigee)
-        R2 = np.matrix([[np.cos(rot), -np.sin(rot), 0],
-                        [np.sin(rot), np.cos(rot), 0],
+        # Rotation matrix for inclination(i),right_ascension (), argument_periapsis()
+        i = o.degree_to_radian(inclination)
+        R = np.matrix([[1, 0, 0],
+                       [0, np.cos(i), -np.sin(i)],
+                       [0, np.sin(i), np.cos(i)]])
+
+        w_omega = o.degree_to_radian(right_ascension)
+        R2 = np.matrix([[np.cos(w_omega), -np.sin(w_omega), 0],
+                        [np.sin(w_omega), np.cos(w_omega), 0],
+                        [0, 0, 1]])
+
+        omega = o.degree_to_radian(argument_perigee)
+        R3 = np.matrix([[np.cos(omega), -np.sin(omega), 0],
+                        [np.sin(omega), np.cos(omega), 0],
                         [0, 0, 1]])
 
         ### Draw orbit
-        theta = np.linspace(0,2*np.pi, 360)
+        theta = np.linspace(0,2*np.pi,360)
         r = (semi_major_axis * (1-eccentricity**2)) / (1 + eccentricity*np.cos(theta))
         xr = r*np.cos(theta)
         yr = r*np.sin(theta)
-        zr = 0 * theta
+        zr = 0*theta
         pts = np.matrix(list(zip(xr,yr,zr)))
 
         # Rotate by inclination, & Ascension + Perigee
-        pts =  (R * R2 * pts.T).T
+        pts =  (R * R2 * R3 * pts.T).T
 
-        # Turn back into 1d vectors
+        # Turn back into 1d vectors (.A converts from MAtrix to Array.)(Compresses to a 1D Array)
         xr,yr,zr = pts[:,0].A.flatten(), pts[:,1].A.flatten(), pts[:,2].A.flatten()
 
         # Plot the orbit
@@ -72,17 +77,21 @@ class Draw(object):
         saty = satr * np.sin(sat_angle)
         satz = 0
 
-        sat = (R * R2 * np.matrix([satx, saty, satz]).T).flatten()
+        sat = (R * R2 * R3 * np.matrix([satx, saty, satz]).T).flatten()
         satx = sat[0,0]
         saty = sat[0,1]
         satz = sat[0,2]
-        print(satx,satz,saty)
+        #print(satx,satz,saty)
 
-        c = np.sqrt(satx*satx + saty*saty)
-        lat = o.degree_to_radian(np.arctan2(satz, c))
-        lon = o.degree_to_radian(np.arctan2(saty, satx))
+        radius = np.sqrt(satx**2 + saty**2 + satz**2)
+        polar = np.arccos(satz/radius)
+        lon = o.degree_to_radian(polar-90)
+        lat = o.degree_to_radian(np.arctan2(saty, satx))
+        
+        Lat = o.radian_to_degree(lat)
+        Lon = o.radian_to_degree(lon)
         print("----------------------------------------------------------------------------------------")
-        print("{} : Projected Lat: {}° Long: {}°".format(label, lat, lon))
+        print("{} : Projected Lat: {}° Long: {}°".format(label, Lat, Lon))
 
         # Draw radius vector from earth & blue sphere for satellite
         self.ax.plot([0, satx], [0, saty], [0, satz], 'b-')
@@ -110,7 +119,7 @@ class Draw(object):
         # Write satellite name next to it
         if label is not None:
             self.ax.text(satx, saty, satz, label, fontsize=11)
-            #self.ax.text(satx, saty, satz, round(semi_major_axis,3), fontsize=10)
+            #self.ax.text(satx, saty, satz, round(semi_major_axis,3), fontsize=10)'''
 
     def draw_orbit(self,*argv,print_info=False):
         '''This function calls the plot orbit function using the TLE elements defined in orbit.py'''
