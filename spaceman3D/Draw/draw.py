@@ -32,68 +32,66 @@ class Draw(object):
         #z = rz *  np.cos(theta)
         return x,y,z
 
-    def plot_orbit(self,semi_major_axis=0, eccentricity=0, inclination=0, right_ascension=0, argument_perigee=0, true_anomaly=0, label=None):
-        "Draws orbit around an earth in units of kilometers."
-
-        o = Orbit()
-
-        # Rotation matrix for inclination(i),right_ascension (), argument_periapsis()
-        i = o.degree_to_radian(inclination)
+    def orientation(self, inclination=0, right_ascension=0, argument_periapsis=0):
+        '''This function defines the rotational matricies used to orient the ellipse.'''
+        i = Orbit().degree_to_radian(inclination)
         R = np.matrix([[1, 0, 0],
                        [0, np.cos(i), -np.sin(i)],
                        [0, np.sin(i), np.cos(i)]])
-
-        w_omega = o.degree_to_radian(right_ascension)
+                       
+        w_omega = Orbit().degree_to_radian(right_ascension)
         R2 = np.matrix([[np.cos(w_omega), -np.sin(w_omega), 0],
                         [np.sin(w_omega), np.cos(w_omega), 0],
                         [0, 0, 1]])
 
-        omega = o.degree_to_radian(argument_perigee)
+        omega = Orbit().degree_to_radian(argument_periapsis)
         R3 = np.matrix([[np.cos(omega), -np.sin(omega), 0],
                         [np.sin(omega), np.cos(omega), 0],
                         [0, 0, 1]])
+        return R, R2, R3
 
-        ### Draw orbit
-        theta = np.linspace(0,2*np.pi,360)
+    def polar_equation_of_ellipse(self,semi_major_axis,eccentricity,theta):
+        '''This function defines the polar equation of an ellipse, and returns the radius, and polar coordinates.'''
         r = (semi_major_axis * (1-eccentricity**2)) / (1 + eccentricity*np.cos(theta))
-        xr = r*np.cos(theta)
-        yr = r*np.sin(theta)
-        zr = 0*theta
-        pts = np.matrix(list(zip(xr,yr,zr)))
+        polar_x = r*np.cos(theta)
+        polar_y = r*np.sin(theta)
+        polar_z = 0*theta
+        return r, polar_x, polar_y, polar_z
 
-        # Rotate by inclination, & Ascension + Perigee
-        pts =  (R * R2 * R3 * pts.T).T
+    def define_orbit(self,semi_major_axis=0, eccentricity=0, inclination=0,
+                    right_ascension=0, argument_periapsis=0,theta=0,define_orbit=True):
+        '''This function takes the orbital elements and uses them to define the Elliptical orbit in 3-Dimensions'''
+        R, R2, R3 = self.orientation(inclination,right_ascension,argument_periapsis)
+        r, polar_x, polar_y, polar_z = self.polar_equation_of_ellipse(semi_major_axis,eccentricity,theta)
+        if define_orbit is True:
+            points = np.matrix(list(zip(polar_x,polar_y,polar_z)))
+        else:
+            points = np.matrix([polar_x,polar_y,polar_z])
+        pts =  (R * R2 * R3 * points.T)
+        return pts
 
-        # Turn back into 1d vectors (.A converts from MAtrix to Array.)(Compresses to a 1D Array)
-        xr,yr,zr = pts[:,0].A.flatten(), pts[:,1].A.flatten(), pts[:,2].A.flatten()
 
-        # Plot the orbit
+    def plot_orbit(self,semi_major_axis=0, eccentricity=0, inclination=0,
+                    right_ascension=0, argument_periapsis=0, true_anomaly=0, label=None):
+        "Draws orbit around an earth in units of kilometers."
+
+        #Plot Earth
+        x,y,z = self.plot_earth()
+        self.ax.plot_surface(x, y, z,  rstride=4, cstride=4, alpha=0.2, color='g')
+        self.ax.set_axis_off()
+
+        #Plot Orbit
+        theta = np.linspace(0,2*np.pi,360)
+        pts = self.define_orbit(semi_major_axis,eccentricity,inclination,right_ascension,argument_periapsis,theta)
+        orbit_pts = pts.T
+        xr,yr,zr = orbit_pts[:,0].A.flatten(), orbit_pts[:,1].A.flatten(), orbit_pts[:,2].A.flatten()
         self.ax.plot(xr, yr, zr, color='g', linestyle='-')
 
-        # Plot the satellite
-        sat_angle = o.degree_to_radian(true_anomaly)
-        satr = (semi_major_axis * (1-eccentricity**2)) / (1 + eccentricity*np.cos(sat_angle))
-        satx = satr * np.cos(sat_angle)
-        saty = satr * np.sin(sat_angle)
-        satz = 0
-
-        sat = (R * R2 * R3 * np.matrix([satx, saty, satz]).T).flatten()
-        satx = sat[0,0]
-        saty = sat[0,1]
-        satz = sat[0,2]
-        #print(satx,satz,saty)
-
-        radius = np.sqrt(satx**2 + saty**2 + satz**2)
-        polar = np.arccos(satz/radius)
-        lon = o.degree_to_radian(polar-90)
-        lat = o.degree_to_radian(np.arctan2(saty, satx))
-        
-        Lat = o.radian_to_degree(lat)
-        Lon = o.radian_to_degree(lon)
-        print("----------------------------------------------------------------------------------------")
-        print("{} : Projected Lat: {}° Long: {}°".format(label, Lat, Lon))
-
-        # Draw radius vector from earth & blue sphere for satellite
+        # Plot Satellite
+        sat_angle = Orbit().degree_to_radian(true_anomaly)
+        sat = self.define_orbit(semi_major_axis,eccentricity,inclination,right_ascension,argument_periapsis,sat_angle,define_orbit=False)
+        sat = sat.flatten()
+        satx, saty, satz = sat[0,0], sat[0,1], sat[0,2]
         self.ax.plot([0, satx], [0, saty], [0, satz], 'b-')
         self.ax.plot([satx],[saty],[satz], 'bo')
 
@@ -112,19 +110,26 @@ class Draw(object):
         self.ax.plot([0],[0],[7500],'r^')
         self.ax.text(0,0,7510,s='Z', fontsize=10,color='w')
 
-        x,y,z = self.plot_earth()
-        self.ax.plot_surface(x, y, z,  rstride=4, cstride=4, alpha=0.2, color='g')
-        self.ax.set_axis_off()
-
         # Write satellite name next to it
         if label is not None:
             self.ax.text(satx, saty, satz, label, fontsize=11)
-            #self.ax.text(satx, saty, satz, round(semi_major_axis,3), fontsize=10)'''
+
+        #radius = np.sqrt(satx**2 + saty**2 + satz**2)
+        #polar = np.arccos(satz/radius)
+        #lon = o.degree_to_radian(polar-90)
+        #lat = o.degree_to_radian(np.arctan2(saty, satx))
+
+        #Lat = o.radian_to_degree(lat)
+        #Lon = o.radian_to_degree(lon)
+        #print("----------------------------------------------------------------------------------------")
+        #print("{} : Projected Lat: {}° Long: {}°".format(label, Lat, Lon))
 
     def draw_orbit(self,*argv,print_info=False):
         '''This function calls the plot orbit function using the TLE elements defined in orbit.py'''
         o = Orbit()
         semi_major_axes = []
+        max_axis = max(semi_major_axes)
+        self.ax.auto_scale_xyz([-max_axis,max_axis],[-max_axis,max_axis],[-max_axis,max_axis])
         for arg in argv:
             o.import_tle(arg)
             semi_major_axis = o.semi_major_axis_calc()
@@ -132,9 +137,7 @@ class Draw(object):
             true_anomaly = o.anomoly_calc()
             self.plot_orbit(semi_major_axis,o.eccentricity,o.inclination,o.right_ascension,
                             o.argument_periapsis,true_anomaly,o.title)
-
             if print_info is True:
-                #Print Keplerian (Orbital) Elements
                 print("----------------------------------------------------------------------------------------")
                 print("----------------------------------------------------------------------------------------")
                 print("Semi Major Axis [kilometers]                                {}".format(semi_major_axis))
@@ -146,10 +149,4 @@ class Draw(object):
                 print("----------------------------------------------------------------------------------------")
             else:
                 pass
-
-        #Scale Axes proportionate to the largest satellites radius
-        max_axis = max(semi_major_axes)
-        self.ax.auto_scale_xyz([-max_axis,max_axis],[-max_axis,max_axis],[-max_axis,max_axis])
-
-        # Draw figure
         plt.show()
