@@ -81,10 +81,8 @@ class Orbit(object):
 
     def anomoly_calc(self):
         '''This function calculates the true and eccentric anomalies.'''
-        #self.mean_anomaly =
         self.mean_anomaly = self.radian_to_degree(self.time_adjusted_mean_anomaly_calc())
         eccentric_anomaly = self.eccentric_anomoly_calculation(self.eccentricity, self.mean_anomaly)
         true_anomaly = 2*np.arctan2(np.sqrt(1+self.eccentricity) * np.sin(eccentric_anomaly/2.0), np.sqrt(1-self.eccentricity) * np.cos(eccentric_anomaly/2.0))
-        #eccentric_anomaly *= 180/np.pi
         true_anomaly = self.radian_to_degree(true_anomaly)
         return true_anomaly

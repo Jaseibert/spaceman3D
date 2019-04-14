@@ -1,10 +1,10 @@
+from spaceman3D.Orbit import Orbit
+import spaceman3D.Draw.astronomical_objects as a
 import matplotlib.pyplot as plt
 plt.style.use('dark_background')
 from mpl_toolkits.mplot3d import Axes3D
 from mpltools import layout
 import numpy as np
-from spaceman3D.Orbit import Orbit
-import spaceman3D.Orbit.satellites as s
 
 class Draw(object):
 
@@ -14,22 +14,23 @@ class Draw(object):
     fig = plt.figure(figsize=layout.figaspect(1))
     ax = fig.add_subplot(111, projection='3d',aspect=1)
 
-    def plot_earth(self):
-        "Draw Earth as a globe at the origin"
+    def plot_earth(self,radius):
+        '''This function plots a celestial body at the origin of the plot.
+        :param radius: Takes the radius of a celestial body
+        :returns: angular coordinates
+        '''
 
-        Earth_radius = 6371
         coefs = (1, 1, 1)
-        rx, ry, rz = [Earth_radius/np.sqrt(coef) for coef in coefs]
+        rx, ry, rz = [radius/np.sqrt(coef) for coef in coefs]
 
         # Azimuth Angle & Altitude in Spherical Coordinates
         phi = np.linspace(0, 2*np.pi, 100)
         theta = np.linspace(0, np.pi, 100)
 
-        # Spherical Angles: X = r * cos(ϕ)sin(θ), Y = r * cos(ϕ)sin(θ), Z = r * cos(θ)
+        # Spherical Angles
         x = rx * np.outer(np.cos(phi), np.sin(theta))
         y = ry * np.outer(np.sin(phi), np.sin(theta))
         z = rz * np.outer(np.ones_like(phi), np.cos(theta))
-        #z = rz *  np.cos(theta)
         return x,y,z
 
     def orientation(self, inclination=0, right_ascension=0, argument_periapsis=0):
@@ -38,7 +39,7 @@ class Draw(object):
         R = np.matrix([[1, 0, 0],
                        [0, np.cos(i), -np.sin(i)],
                        [0, np.sin(i), np.cos(i)]])
-                       
+
         w_omega = Orbit().degree_to_radian(right_ascension)
         R2 = np.matrix([[np.cos(w_omega), -np.sin(w_omega), 0],
                         [np.sin(w_omega), np.cos(w_omega), 0],
@@ -71,18 +72,18 @@ class Draw(object):
         return pts
 
 
-    def plot_orbit(self,semi_major_axis=0, eccentricity=0, inclination=0,
-                    right_ascension=0, argument_periapsis=0, true_anomaly=0, label=None):
+    def plot_orbit(self,semi_major_axis=0, eccentricity=0, inclination=0,right_ascension=0, argument_periapsis=0,
+                    true_anomaly=0, label=None, object=None):
         "Draws orbit around an earth in units of kilometers."
 
         #Plot Earth
-        x,y,z = self.plot_earth()
-        self.ax.plot_surface(x, y, z,  rstride=4, cstride=4, alpha=0.2, color='g')
+        x,y,z = self.plot_earth(radius=a.objects[str(object)]['radius'])
+        self.ax.plot_surface(x, y, z, rstride=4, cstride=4, alpha=0.4, color=a.objects[str(object)]['color'])
         self.ax.set_axis_off()
 
         #Plot Orbit
         theta = np.linspace(0,2*np.pi,360)
-        pts = self.define_orbit(semi_major_axis,eccentricity,inclination,right_ascension,argument_periapsis,theta)
+        pts = self.define_orbit(semi_major_axis, eccentricity, inclination, right_ascension, argument_periapsis, theta)
         orbit_pts = pts.T
         xr,yr,zr = orbit_pts[:,0].A.flatten(), orbit_pts[:,1].A.flatten(), orbit_pts[:,2].A.flatten()
         self.ax.plot(xr, yr, zr, color='g', linestyle='-')
@@ -106,7 +107,7 @@ class Draw(object):
         self.ax.text(0,7510,0,s='Y',fontsize=10,color='w')
 
         #Create Z-axis Marker
-        self.ax.plot([0,0],[0,0],[0,7500],'r:')
+        self.ax.plot([0,0],[0,0],[a.objects[str(object)]['axial_tilt'],7500],'r:')
         self.ax.plot([0],[0],[7500],'r^')
         self.ax.text(0,0,7510,s='Z', fontsize=10,color='w')
 
@@ -124,29 +125,17 @@ class Draw(object):
         #print("----------------------------------------------------------------------------------------")
         #print("{} : Projected Lat: {}° Long: {}°".format(label, Lat, Lon))
 
-    def draw_orbit(self,*argv,print_info=False):
+    def draw_orbit(self,*argv,object):
         '''This function calls the plot orbit function using the TLE elements defined in orbit.py'''
         o = Orbit()
         semi_major_axes = []
-        max_axis = max(semi_major_axes)
-        self.ax.auto_scale_xyz([-max_axis,max_axis],[-max_axis,max_axis],[-max_axis,max_axis])
         for arg in argv:
             o.import_tle(arg)
             semi_major_axis = o.semi_major_axis_calc()
             semi_major_axes.append(semi_major_axis)
             true_anomaly = o.anomoly_calc()
             self.plot_orbit(semi_major_axis,o.eccentricity,o.inclination,o.right_ascension,
-                            o.argument_periapsis,true_anomaly,o.title)
-            if print_info is True:
-                print("----------------------------------------------------------------------------------------")
-                print("----------------------------------------------------------------------------------------")
-                print("Semi Major Axis [kilometers]                                {}".format(semi_major_axis))
-                print("Inclination [Degrees]                                       {}°".format(o.inclination))
-                print("Right Ascension of the Ascending Node [Degrees]             {}°".format(o.right_ascension))
-                print("Eccentricity                                                {}".format(o.eccentricity))
-                print("Argument of Periapsis [Degrees]                             {}°".format(o.argument_periapsis))
-                print("True Anomaly [Degrees]                                      {}°".format(true_anomaly))
-                print("----------------------------------------------------------------------------------------")
-            else:
-                pass
+                            o.argument_periapsis,true_anomaly,o.title,object=object)
+        max_axis = max(semi_major_axes)
+        self.ax.auto_scale_xyz([-max_axis,max_axis],[-max_axis,max_axis],[-max_axis,max_axis])
         plt.show()
