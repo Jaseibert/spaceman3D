@@ -1,0 +1,4 @@
+DocString Definitions:
+
+1. “Definition of Two-line Element Set Coordinate System.” SpaceFlight, National Aeronautics and Space Administration,
+        23, Sept. 2011, https://spaceflight.nasa.gov/realdata/sightings/SSapplications/Post/JavaSSOP/SSOP_Help/tle_def.html.

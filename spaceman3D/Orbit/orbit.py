@@ -16,22 +16,52 @@ class Orbit(object):
         self.epoch_date = epoch_date
         return
 
-    def import_tle(self,element):
-        '''This function uses TLE element information to populate the relavant instance variables.'''
+    def import_tle(self, tle=None):
+        '''This function uses TLE element information to populate the relavant instance variables.
+
+        :param tle: a Two-Line Element (TLE).
+        :type tle: String
+        :return: Nothing,
+        '''
         TLE = t.tle()
-        self.title, self.inclination, self.right_ascension, self.eccentricity, self.argument_periapsis, self.mean_anomaly, self.mean_motion, self.epoch_date = TLE.tle_keplerian_elements(tle=element)
+        self.title, self.inclination, self.right_ascension, self.eccentricity, self.argument_periapsis, self.mean_anomaly, self.mean_motion, self.epoch_date = TLE.tle_keplerian_elements(tle=tle)
         return
 
-    def radian_to_degree(self,val):
-        val_rad = val * 180/np.pi
-        return val_rad
+    def radian_to_degree(self, value):
+        '''This function converts radians to degrees.
 
-    def degree_to_radian(self,val):
-        val_deg = val * np.pi/180
-        return val_deg
+        :param value: the radian to be converted.
+        :type value: float
+        :return: the degree (float)
+        '''
+        radian = value * 180/np.pi
+        return radian
+
+    def degree_to_radian(self, value):
+        '''This function converts degrees to radians.
+
+        :param value: the degree to be converted.
+        :type value: float
+        :return: the radian (float)
+        '''
+        degree = value * np.pi/180
+        return degree
 
     def eccentric_anomoly_calculation(self, mean_anomaly, eccentricity, max_iterations=500, max_accuracy=0.0001):
-        """Approximates Eccentric Anomaly from Mean Anomaly All input and outputs are in radians"""
+        '''Approximates Eccentric Anomaly from Mean Anomaly (input and outputs are in radians).
+
+        :param mean_anomaly: the mean anomaly (radians)
+        :type mean_anomaly: float
+        :param eccentricity: the eccentricity.
+        :type eccentricity: float
+        :param value: the degree to be converted.
+        :type value: float
+        :param value: the degree to be converted.
+        :type value: float
+        :param value: the degree to be converted.
+        :type value: float
+        :return: the radian (float)
+        '''
 
         if mean_anomaly >= 0.8:
             initial = np.pi
@@ -71,8 +101,11 @@ class Orbit(object):
         period = day_seconds * 1/self.mean_motion
         return period
 
-    def semi_major_axis_calc(self):
-        '''This function calculates the semi major axis.'''
+    def semi_major_axis_calc(self, standard_gravitational_parameter='Earth'):
+        '''This function calculates the semi major axis.
+        :param standard_gravitational_parameter: the Standard Gravitational Parameter for the orbital body
+        :return: the Semi-Major Axis
+        '''
         GM = 398600.4418
         period = self.period_calc()
         motion_per_sec = self.motion_radian_per_second()
