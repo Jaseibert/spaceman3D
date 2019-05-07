@@ -71,7 +71,6 @@ class Draw(object):
         pts =  (R * R2 * R3 * points.T)
         return pts
 
-
     def plot_orbit(self,semi_major_axis=0, eccentricity=0, inclination=0,right_ascension=0, argument_periapsis=0,
                     true_anomaly=0, label=None, object=None):
         "Draws orbit around an earth in units of kilometers."

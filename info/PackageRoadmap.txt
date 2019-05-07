@@ -16,11 +16,15 @@ Sprint 2: Optimize and Improve on the Basic Modules (Done)
 Sprint 3: Build out Analytics Capabilities
     - Create & Release beta version of PyPi (Done)
     - Create functions that find each of the individual components in a TLE.(Done)
-        + Need to fix logic on the scientific_notation_conversion calculation.
-    - Work on a Jupyter Notebook explaining the trig involved in drawing the Orbits
+        + Need to fix logic on the scientific_notation_conversion calculation. (Done)
+    - Add the ability to plot other celestial objects (Done)
     - Add functionality to create DataFrames out of TLE Data
     - Add X,Y,Z arrows to sphere in Draw.py (Done)
+    - Imporove Axial tilt arrows 
+    - Update readme to include astronomical objects.
     - Create tests.py
 
 Sprint 4: Add Space-Track and CelesTrak API support
     - Create pipelines between CelesTrack and SpaceTrack for importing TLE data.
+    - Work on a Jupyter Notebook explaining the trig involved in drawing the Orbits
+    - Add Sphinx Documentation

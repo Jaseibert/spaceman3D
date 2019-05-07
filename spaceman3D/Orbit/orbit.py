@@ -21,7 +21,7 @@ class Orbit(object):
 
         :param tle: a Two-Line Element (TLE).
         :type tle: String
-        :return: Nothing,
+        :return: Nothing.
         '''
         TLE = t.tle()
         self.title, self.inclination, self.right_ascension, self.eccentricity, self.argument_periapsis, self.mean_anomaly, self.mean_motion, self.epoch_date = TLE.tle_keplerian_elements(tle=tle)
@@ -101,7 +101,7 @@ class Orbit(object):
         period = day_seconds * 1/self.mean_motion
         return period
 
-    def semi_major_axis_calc(self, standard_gravitational_parameter='Earth'):
+    def semi_major_axis_calc(self, GM='Earth'):
         '''This function calculates the semi major axis.
         :param standard_gravitational_parameter: the Standard Gravitational Parameter for the orbital body
         :return: the Semi-Major Axis

@@ -17,6 +17,9 @@ d = Draw()
 
 #Call the draw Orbit function
 d.draw_orbit(satellites.ISS, satellites.Dragon)
+
+#or What would the Satellite look like around the Moon
+d.draw_orbit(satellites.Dragon, object='Moon')
 ```
 
 Using the code above will output an image that resembles this:
@@ -36,7 +39,7 @@ from spaceman3D.Orbit import tle, satellites
 t = tle()
 
 #Call the satellite elements function
-t.tle_satellite_elements(satellites.ISS, satellites.Dragon,print_info=True)
+t.tle_satellite_elements(satellites.ISS, satellites.Dragon, print_info=True)
 ```
 
 ## Orbital Mechanic's Resources

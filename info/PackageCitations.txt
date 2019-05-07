@@ -2,3 +2,11 @@ DocString Definitions:
 
 1. “Definition of Two-line Element Set Coordinate System.” SpaceFlight, National Aeronautics and Space Administration,
         23, Sept. 2011, https://spaceflight.nasa.gov/realdata/sightings/SSapplications/Post/JavaSSOP/SSOP_Help/tle_def.html.
+
+2. astronomical_objects.py
+
+    Gravitational Parameters
+    Source: DE-431 "ASTRO-VALUES", Folkner              [1-10,199,299,301,399]
+         Jacobson satellite file release forms [non-Lunar satellites, planets]
+         SB431-BIG16 small-body integration perturber file
+    https://naif.jpl.nasa.gov/pub/naif/generic_kernels/pck/gm_de431.tpc
