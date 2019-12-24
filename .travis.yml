@@ -9,7 +9,6 @@ install:
  - 'pipenv install numpy'
  - 'pipenv install datetime'
  - 'pipenv install pytz'
- - 'pipenv install mpl_toolkits'
  - 'pipenv install matplotlib'
  - 'pipenv install urllib'
 
