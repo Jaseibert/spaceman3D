@@ -1,9 +1,8 @@
 from datetime import datetime, timedelta
 import pytz as tz
 import pandas as pd
-import typing
 
-class tle(object):
+class TLE(object):
 
     def __init__(self):
         return
@@ -23,6 +22,7 @@ class tle(object):
         :return: The individual lines from the TLE, and the title of the satellite.
         '''
         assert isinstance(tle, str), 'The (tle) paramter must be of type string. Please check that the Two line Element (TLE) passed in for tle is a Multi-Line String.'
+        assert len(tle.split('\n'))==3, 'It looks like you are missing a row in your TLE. There should be three rows of information, with the title being the first row.'
 
         title, line1, line2 = map(lambda x: x.strip(), tle.split('\n'))
         return title, line1, line2
@@ -37,6 +37,7 @@ class tle(object):
         :param line: The Two line Element (TLE) line to be checked.
         :return: The value of the Modulo-10 Checksum for the defined line, cast as a string.
         '''
+        assert isinstance(line, str), 'The (line) paramter must be of type string. Please check that the (line) passed in is a string.'
 
         line = line.replace('-','1')
         digits = [int(d) for d in line if d.isdigit()]
@@ -57,18 +58,21 @@ class tle(object):
         :param dual_condition: If this is True, then you are testing that two conditions match.
         :return: A boolean value indicating whether the conditions being tested are the same.
         '''
-        params = (condition1, condition2, expected1, expected2)
+        params = (condition1, expected1)
         for param in params:
             assert isinstance(param, str), f'The ({param}) must be of type string. Please check that the value passed in for ({param}) is a string.'
         assert isinstance(dual_condition, bool), 'The (dual_condition) must be of type bool. Please check that the value passed in for (dual_condition) is a string.'
 
         if dual_condition == True:
+            params = (condition2, expected2)
+            for param in params:
+                assert isinstance(param, str), f'The ({param}) must be of type string. Please check that the value passed in for ({param}) is a string.'
             if (condition1 == expected1) and (condition2 == expected2):
                 return True
             else:
                 return False
         else:
-            if condition1 == condition2:
+            if condition1 == expected1:
                 return True
             else:
                 return False
@@ -87,9 +91,9 @@ class tle(object):
         '''
 
         title, line1, line2 =  self.parse_tle(tle)
-        line_index_chk = self.validation_framework(line1[0],line2[0],'1','2')
-        sat_number_chk = self.validation_framework(line1[2:7],line2[2:7],dual_condition=False)
-        checksum_chk = self.validation_framework(line1[-1],line2[-1],self.tle_checksum_algortithm(line1), self.tle_checksum_algortithm(line2))
+        line_index_chk = self.validation_framework(condition1=line1[0], condition2=line2[0],expected1='1',expected2='2')
+        sat_number_chk = self.validation_framework(condition1=line1[2:7], expected1=line2[2:7], dual_condition=False)
+        checksum_chk = self.validation_framework(condition1=line1[-1], condition2=line2[-1], expected1=self.tle_checksum_algortithm(line1), expected2=self.tle_checksum_algortithm(line2))
         if line_index_chk and sat_number_chk and checksum_chk is True:
             return True
         else:
@@ -467,7 +471,7 @@ class tle(object):
         df = pd.DataFrame(sat_elements, index=[0])
         return df
 
-    def tle_keplerian_elements(self, tle:str=None) -> tuple:
+    def satellite_orbital_elements(self, tle:str=None) -> tuple:
         '''This method parses and returns the Keplerian "Orbital" elements as individual components from the Two-Line Element (TLE).
         These elements are used by astronomers, scientists, and the US Military to understand the orbit of the satellite from the TLE.
 
@@ -487,8 +491,7 @@ class tle(object):
         epoch_date = self.epoch_date(tle=tle)
         return title, inclination, right_ascension, eccentricity, argument_periapsis, mean_anomaly, mean_motion, epoch_date
 
-
-    def tle_sat_identity_elements(self, tle:str=None) -> tuple:
+    def satellite_identitfier_elements(self, tle:str=None) -> tuple:
         '''This method parses and returns the satellite's identifying elements as individual components from the Two-Line Element (TLE).
         These elements are used by astronomers, scientists, and the US Military to identify the satellite from the TLE.
 
@@ -498,7 +501,7 @@ class tle(object):
         '''
         assert self.check_valid_tle(tle) is True, "Your TLE data failed the validity check. Confirm that the data is correct, and try again."
 
-        title, line1, line2 =  self.parse_tle(tle)
+        title, line1, line2 =  self.parse_tle(tle=tle)
         satellite_number = int(line1[2:7])
         classification = str(line1[7:8])
         international_designator_year = int(line1[9:11])

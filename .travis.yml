@@ -1,0 +1,17 @@
+language: python
+python:
+  - "3.6"
+  - "3.7"
+  - "3.8"
+install:
+ - 'pip install pipenv'
+ - 'pipenv install pandas'
+ - 'pipenv install numpy'
+ - 'pipenv install datetime'
+ - 'pipenv install pytz'
+ - 'pipenv install mpl_toolkits'
+ - 'pipenv install matplotlib'
+ - 'pipenv install urllib'
+
+script:
+ - python3 -m unittest spaceman3D.tests.test
