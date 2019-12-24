@@ -10,7 +10,6 @@ install:
  - 'pipenv install datetime'
  - 'pipenv install pytz'
  - 'pipenv install matplotlib'
- - 'pipenv install urllib'
 
 script:
  - python3 -m unittest spaceman3D.tests.test
