@@ -2,9 +2,9 @@ import numpy as np
 from datetime import datetime, timedelta
 import pytz as tz
 import urllib
-import spaceman3D.Orbit.tle as t
+from spaceman3D.Orbit.tle import TLE
 
-class Orbit(object):
+class Orbital(object):
 
     def __init__(self,title='',right_ascension=0,eccentricity=0,argument_periapsis=0,mean_anomaly=0,mean_motion=0,epoch_date=0):
         self.title = title
@@ -16,15 +16,13 @@ class Orbit(object):
         self.epoch_date = epoch_date
         return
 
-    def import_tle(self, tle=None):
+    def import_tle(self, tle:str=None) -> tuple:
         '''This function uses TLE element information to populate the relavant instance variables.
 
         :param tle: a Two-Line Element (TLE).
-        :type tle: String
         :return: Nothing.
         '''
-        TLE = t.tle()
-        self.title, self.inclination, self.right_ascension, self.eccentricity, self.argument_periapsis, self.mean_anomaly, self.mean_motion, self.epoch_date = TLE.tle_keplerian_elements(tle=tle)
+        self.title, self.inclination, self.right_ascension, self.eccentricity, self.argument_periapsis, self.mean_anomaly, self.mean_motion, self.epoch_date = TLE().satellite_orbital_elements(tle=tle)
         return
 
     def radian_to_degree(self, value):

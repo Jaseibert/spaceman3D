@@ -1,4 +1,4 @@
-from spaceman3D.Orbit import Orbit
+from spaceman3D.Orbit import Orbital
 import spaceman3D.Draw.astronomical_objects as a
 import matplotlib.pyplot as plt
 plt.style.use('dark_background')
@@ -12,7 +12,7 @@ class Draw(object):
         return
 
     fig = plt.figure(figsize=layout.figaspect(1))
-    ax = fig.add_subplot(111, projection='3d',aspect=1)
+    ax = fig.add_subplot(111, projection='3d')
 
     def plot_earth(self,radius):
         '''This function plots a celestial body at the origin of the plot.
@@ -35,17 +35,17 @@ class Draw(object):
 
     def orientation(self, inclination=0, right_ascension=0, argument_periapsis=0):
         '''This function defines the rotational matricies used to orient the ellipse.'''
-        i = Orbit().degree_to_radian(inclination)
+        i = Orbital().degree_to_radian(inclination)
         R = np.matrix([[1, 0, 0],
                        [0, np.cos(i), -np.sin(i)],
                        [0, np.sin(i), np.cos(i)]])
 
-        w_omega = Orbit().degree_to_radian(right_ascension)
+        w_omega = Orbital().degree_to_radian(right_ascension)
         R2 = np.matrix([[np.cos(w_omega), -np.sin(w_omega), 0],
                         [np.sin(w_omega), np.cos(w_omega), 0],
                         [0, 0, 1]])
 
-        omega = Orbit().degree_to_radian(argument_periapsis)
+        omega = Orbital().degree_to_radian(argument_periapsis)
         R3 = np.matrix([[np.cos(omega), -np.sin(omega), 0],
                         [np.sin(omega), np.cos(omega), 0],
                         [0, 0, 1]])
@@ -88,7 +88,7 @@ class Draw(object):
         self.ax.plot(xr, yr, zr, color='g', linestyle='-')
 
         # Plot Satellite
-        sat_angle = Orbit().degree_to_radian(true_anomaly)
+        sat_angle = Orbital().degree_to_radian(true_anomaly)
         sat = self.define_orbit(semi_major_axis,eccentricity,inclination,right_ascension,argument_periapsis,sat_angle,define_orbit=False)
         sat = sat.flatten()
         satx, saty, satz = sat[0,0], sat[0,1], sat[0,2]
@@ -106,9 +106,14 @@ class Draw(object):
         self.ax.text(0,7510,0,s='Y',fontsize=10,color='w')
 
         #Create Z-axis Marker
-        self.ax.plot([0,0],[0,0],[a.objects[str(object)]['axial_tilt'],7500],'r:')
+        self.ax.plot([0,0],[0,0],[0,7500],'r:')
         self.ax.plot([0],[0],[7500],'r^')
         self.ax.text(0,0,7510,s='Z', fontsize=10,color='w')
+
+        #Create Z-axis Marker
+        self.ax.plot([0,0],[0,0],[0,7500],'m-')
+        self.ax.plot([0],[0],[7500],'m<')
+        self.ax.text(0,0,7510,s='axis', fontsize=10,color='w')
 
         # Write satellite name next to it
         if label is not None:
@@ -124,17 +129,17 @@ class Draw(object):
         #print("----------------------------------------------------------------------------------------")
         #print("{} : Projected Lat: {}° Long: {}°".format(label, Lat, Lon))
 
-    def draw_orbit(self,*argv,object):
+    def draw_orbit(self, *argv, object):
         '''This function calls the plot orbit function using the TLE elements defined in orbit.py'''
-        o = Orbit()
+        o=Orbital()
         semi_major_axes = []
         for arg in argv:
-            o.import_tle(arg)
+            o.import_tle(tle=arg)
             semi_major_axis = o.semi_major_axis_calc()
             semi_major_axes.append(semi_major_axis)
             true_anomaly = o.anomoly_calc()
-            self.plot_orbit(semi_major_axis,o.eccentricity,o.inclination,o.right_ascension,
-                            o.argument_periapsis,true_anomaly,o.title,object=object)
+            self.plot_orbit(semi_major_axis, o.eccentricity, o.inclination, o.right_ascension,
+                            o.argument_periapsis,true_anomaly, o.title, object=object)
         max_axis = max(semi_major_axes)
         self.ax.auto_scale_xyz([-max_axis,max_axis],[-max_axis,max_axis],[-max_axis,max_axis])
         plt.show()
