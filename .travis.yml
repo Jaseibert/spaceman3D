@@ -12,4 +12,4 @@ install:
  - 'pipenv install matplotlib'
 
 script:
- - python3 -m unittest spaceman3D.tests.test
+ - python3 -m unittest spaceman3D.Tests.test
