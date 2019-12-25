@@ -93,13 +93,13 @@ class TLE(object):
         title, line1, line2 =  self.parse_tle(tle)
         line_index_chk = self.validation_framework(condition1=line1[0], condition2=line2[0],expected1='1',expected2='2')
         sat_number_chk = self.validation_framework(condition1=line1[2:7], expected1=line2[2:7], dual_condition=False)
-        checksum_chk = self.validation_framework(condition1=line1[-1], condition2=line2[-1], expected1=self.tle_checksum_algortithm(line1), expected2=self.tle_checksum_algortithm(line2))
+        checksum_chk = self.validation_framework(condition1=self.tle_checksum_algortithm(line1), condition2=self.tle_checksum_algortithm(line2), expected1=line1[-1], expected2=line2[-1])
         if line_index_chk and sat_number_chk and checksum_chk is True:
             return True
         else:
             return False
 
-    def scientific_notation_conversion(self, element:str=None) -> int:
+    def scientific_notation_conversion(self, element:str=None) -> float:
         '''This method takes in an element in this format (01234-5) as + or (-01234-5) as -, and converts them into
         a float value in e-Notation 1.234e-08. The two specific elements which require this conversion are the BSTAR drag term and
         the second derivative of mean motion. Once the element is converted the method returns the element as a float in e-Notation.
@@ -107,17 +107,22 @@ class TLE(object):
         :param element: a element that needs converted. (Example: 01234-5)
         :return: The element as a float in e-Notation.
         '''
+        assert isinstance(element, str), 'The (element) must be of type string. Please check that the value passed in for (element) is a string.'
+        assert len(element)==8, 'The length of the (element) must be 8 characters long. Please check that the value passed in for (element) is the correct length.'
+
         def drop_leading_chars(element:str=None) -> int:
             '''This nested function takes an element as a string and then then returns the length of the string without
             zeros or a negative sign.'''
             i=0
             for char in element:
-                if (char=='0') or (char=='-'):
+                if (char=='0') or (char=='-') or (char==' '):
                     i+=1
-                    continue
+                    if i < len(element):
+                        continue
+                    else:
+                        return 0
                 else:
                     return len(element[i:])
-
         exp = element[-2:]
         base = element[:-2]
         decimal_places = drop_leading_chars(base)
