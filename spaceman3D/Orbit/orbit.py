@@ -3,7 +3,7 @@ from datetime import datetime, timedelta
 import pytz as tz
 import urllib
 from spaceman3D.Orbit.tle import TLE
-from spaceman.Orbit.astronomical_objects as astro
+import spaceman3D.Orbit.astronomical_objects as astro
 
 class Orbital(object):
 
@@ -100,9 +100,9 @@ class Orbital(object):
 
         :return: The standard gravitational parameter associated with the defined celestial body parameter.
         '''
-        assert body in list(a.objects.keys()), 'The celestial body that you passed into the body parameter is not avaliable. Please re-try a new body.'
+        assert body in list(astro.objects.keys()), 'The celestial body that you passed into the body parameter is not avaliable. Please re-try a new body.'
         assert isInstance(body, str), 'The (body) parameter must be of type string. Please check that the celestial body passed in for (body) is a string.'
-        return a.objects[f'{body.title()}']['standard_gravitational_parameter']
+        return astro.objects[f'{body.title()}']['standard_gravitational_parameter']
 
     def period_calc(self) -> float:
         '''This method infers the orbital period from the mean motion value provided in the Two line Element (TLE).
