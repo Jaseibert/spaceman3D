@@ -3,7 +3,7 @@ from datetime import datetime, timedelta
 import pytz as tz
 import urllib
 from spaceman3D.Orbit.tle import TLE
-import spaceman3D.Orbit.astronomical_objects as astro
+from spaceman3D.Orbit.astronomical_objects import objects
 
 class Orbital(object):
 
@@ -35,7 +35,7 @@ class Orbital(object):
         :param radian: The radian value to be converted.
         :return: The degree value corresponding to the radian value.
         '''
-        assert isInstance(radian, (float, int)), 'The (radian) parameter must be of type float or int. Please check that the celestial body passed in for (radian) is a float or int.'
+        assert isinstance(radian, (float, int)), 'The (radian) parameter must be of type float or int. Please check that the celestial body passed in for (radian) is a float or int.'
         return radian * 180/np.pi
 
     def degree_to_radian(self, degree:float=None) -> float:
@@ -45,7 +45,7 @@ class Orbital(object):
         :param degree: The degree value to be converted.
         :return: The radian value corresponding to the degree value.
         '''
-        assert isInstance(degree, (float, int)), 'The (degree) parameter must be of type float or int. Please check that the celestial body passed in for (degree) is a float or int.'
+        assert isinstance(degree, (float, int)), 'The (degree) parameter must be of type float or int. Please check that the celestial body passed in for (degree) is a float or int.'
         return degree * np.pi/180
 
     def eccentric_anomoly_calculation(self, mean_anomaly:float=None, eccentricity:float=None, max_iterations:int=500, max_accuracy:float=0.0001) -> float:
@@ -94,15 +94,15 @@ class Orbital(object):
         assert self.mean_motion is not None, 'The mean_motion parameter cannot be None. Check that the TLE data passed was properly computed.'
         return self.mean_motion * 2*np.pi / (24*60*60)
 
-    def get_standard_gravitational_parameter(body:str=None) -> float:
+    def get_standard_gravitational_parameter(self, body:str=None) -> float:
         '''This method uses the astronomical_objects object to dynamically return the standard gravitational parameter
         associated with the correct celestial body passed into the (body) parameter.
 
         :return: The standard gravitational parameter associated with the defined celestial body parameter.
         '''
-        assert body in list(astro.objects.keys()), 'The celestial body that you passed into the body parameter is not avaliable. Please re-try a new body.'
-        assert isInstance(body, str), 'The (body) parameter must be of type string. Please check that the celestial body passed in for (body) is a string.'
-        return astro.objects[f'{body.title()}']['standard_gravitational_parameter']
+        assert body.title() in list(objects.keys()), 'The celestial body that you passed into the body parameter is not avaliable. Please re-try a new body.'
+        assert isinstance(body, str), 'The (body) parameter must be of type string. Please check that the celestial body passed in for (body) is a string.'
+        return objects[f'{body.title()}']['standard_gravitational_parameter']
 
     def period_calc(self) -> float:
         '''This method infers the orbital period from the mean motion value provided in the Two line Element (TLE).
@@ -114,6 +114,7 @@ class Orbital(object):
     def time_adjusted_mean_anomaly_calc(self) -> float:
         '''This function calculates the offset(in Radians) from the time differece from now until the epoch into Degrees.
 
+        :return: the time adjusted mean anomaly
         '''
         #Calls the epoch_time_diff() and motion_per_sec()
         adjusted_mean_anomaly = self.radian_to_degree(self.epoch_time_diff() *  self.motion_radian_per_second())
