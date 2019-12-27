@@ -1,5 +1,5 @@
 from spaceman3D.Orbit import Orbital
-import spaceman3D.Draw.astronomical_objects as a
+import spaceman3D.Orbit.astronomical_objects as a
 import matplotlib.pyplot as plt
 plt.style.use('dark_background')
 from mpl_toolkits.mplot3d import Axes3D

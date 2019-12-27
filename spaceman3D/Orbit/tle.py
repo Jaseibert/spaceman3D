@@ -21,7 +21,7 @@ class TLE(object):
         :param tle: The Two-Line Element (TLE).
         :return: The individual lines from the TLE, and the title of the satellite.
         '''
-        assert isinstance(tle, str), 'The (tle) paramter must be of type string. Please check that the Two line Element (TLE) passed in for tle is a Multi-Line String.'
+        assert isinstance(tle, str), 'The (tle) parameter must be of type string. Please check that the Two line Element (TLE) passed in for tle is a Multi-Line String.'
         assert len(tle.split('\n'))==3, 'It looks like you are missing a row in your TLE. There should be three rows of information, with the title being the first row.'
 
         title, line1, line2 = map(lambda x: x.strip(), tle.split('\n'))
@@ -37,7 +37,7 @@ class TLE(object):
         :param line: The Two line Element (TLE) line to be checked.
         :return: The value of the Modulo-10 Checksum for the defined line, cast as a string.
         '''
-        assert isinstance(line, str), 'The (line) paramter must be of type string. Please check that the (line) passed in is a string.'
+        assert isinstance(line, str), 'The (line) parameter must be of type string. Please check that the (line) passed in is a string.'
 
         line = line.replace('-','1')
         digits = [int(d) for d in line if d.isdigit()]
