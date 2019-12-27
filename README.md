@@ -1,3 +1,12 @@
+[![Version](https://img.shields.io/pypi/v/spaceman3D.svg)](https://pypi.python.org/pypi/spaceman3D)
+[![License](https://img.shields.io/pypi/l/spaceman3D.svg)](https://pypi.python.org/pypi/spaceman3D)
+[![Python](https://img.shields.io/pypi/pyversions/spaceman3D.svg)](https://pypi.python.org/pypi/spaceman3D)
+[![Downloads](https://img.shields.io/pypi/dm/spaceman3D.svg?style=plastic)](https://img.shields.io/pypi/dm/spaceman3D.svg?style=plastic)
+[![Build Status](https://travis-ci.org/Jaseibert/spaceman3D.svg?branch=master)](https://travis-ci.org/Jaseibert/spaceman3D)
+
+**Author:** [Jeremy Seibert](https://www.jeremyseibert.com)<br/>
+**License:** [MIT](https://opensource.org/licenses/MIT)<br/>
+
 # Spaceman3D
 
 Spaceman3D is a python package that accomplishes several unique tasks within the space of Astrodynamics (pun intended). The package gives users the ability to parse satellite Two-Line Element (TLE) Data into its Ballistic, Keplerian, and satellite identifying orbital elements. Beyond, this SpaceMan uses a `Matplotlib` 3D plotting toolkit to plot the orbit of the satellites.
